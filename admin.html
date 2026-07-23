@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — XITERKING STORE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="topbar">
+    <a class="back-btn" href="index.html">← Volver</a>
+    <span class="brandmark">XITERKING</span>
+  </div>
+
+  <div class="page-wrap">
+
+    <!-- LOGIN -->
+    <div class="card" id="card-login">
+      <h2>Acceso <span>admin</span></h2>
+      <p class="sub">Ingresá la clave para ver el panel.</p>
+
+      <div class="field">
+        <label for="admin-pass">Clave de administrador</label>
+        <input id="admin-pass" type="password" placeholder="••••••••">
+      </div>
+      <div class="form-error" id="admin-login-error"></div>
+      <button class="btn btn-primary" style="width:100%;" id="admin-login-btn">Entrar</button>
+    </div>
+
+    <!-- PANEL -->
+    <div class="card admin-card" id="card-panel" style="display:none;">
+
+      <div class="admin-tabs">
+        <button class="admin-tab active" id="tab-registros">Registros</button>
+        <button class="admin-tab" id="tab-saldos">Saldos</button>
+        <button class="admin-tab" id="tab-recargas">Recargas</button>
+        <button class="admin-tab" id="tab-compras-invitado">Sin cuenta</button>
+        <button class="admin-tab" id="tab-productos">Productos</button>
+        <button class="admin-tab" id="tab-compras">Compras</button>
+      </div>
+
+      <!-- TAB REGISTROS -->
+      <div id="panel-registros">
+        <div class="admin-header">
+          <h2>Panel de <span>registros</span></h2>
+          <span class="admin-tag" id="pendientes-tag">0 pendientes</span>
+        </div>
+        <p class="sub">Aprobá o rechazá a los usuarios que se registraron.</p>
+
+        <div id="admin-list" class="admin-list">
+          <div class="loading-row">Cargando registros…</div>
+        </div>
+      </div>
+
+      <!-- TAB SALDOS -->
+      <div id="panel-saldos" style="display:none;">
+        <div class="admin-header">
+          <h2>Panel de <span>saldos</span></h2>
+        </div>
+        <p class="sub">Cargale saldo a cada usuario.</p>
+
+        <div id="admin-saldo-list" class="admin-list">
+          <div class="loading-row">Cargando usuarios…</div>
+        </div>
+      </div>
+
+      <!-- TAB RECARGAS -->
+      <div id="panel-recargas" style="display:none;">
+        <div class="admin-header">
+          <h2>Panel de <span>recargas</span></h2>
+          <span class="admin-tag" id="recargas-pendientes-tag">0 pendientes</span>
+        </div>
+        <p class="sub">Confirmá que llegó la transferencia y aprobá para sumarle el saldo al usuario.</p>
+
+        <div id="admin-recargas-list" class="admin-list">
+          <div class="loading-row">Cargando recargas…</div>
+        </div>
+      </div>
+
+      <!-- TAB COMPRAS SIN CUENTA -->
+      <div id="panel-compras-invitado" style="display:none;">
+        <div class="admin-header">
+          <h2>Compras <span>sin cuenta</span></h2>
+          <span class="admin-tag" id="compras-invitado-pendientes-tag">0 pendientes</span>
+        </div>
+        <p class="sub">Compras pagadas por transferencia/PayPal/Binance sin iniciar sesión. Revisá el comprobante que te llegó por WhatsApp antes de aprobar — al aprobar se descuenta una key del stock y se manda por email al comprador.</p>
+
+        <div id="admin-compras-invitado-list" class="admin-list">
+          <div class="loading-row">Cargando compras…</div>
+        </div>
+      </div>
+
+      <!-- TAB PRODUCTOS -->
+      <div id="panel-productos" style="display:none;">
+        <div class="admin-header">
+          <h2>Panel de <span>productos</span></h2>
+        </div>
+        <p class="sub">Cargá los productos que la gente va a poder comprar con su saldo.</p>
+
+        <div class="prod-form" id="prod-form">
+          <input type="hidden" id="prod-edit-id" value="">
+          <div class="field">
+            <label for="prod-nombre">Nombre</label>
+            <input id="prod-nombre" type="text" placeholder="Ej: Cuenta Premium">
+          </div>
+          <div class="field">
+            <label for="prod-categoria">Categoría</label>
+            <input id="prod-categoria" type="text" list="prod-categoria-list" placeholder="Ej: Streaming, Gaming, Software…">
+            <datalist id="prod-categoria-list"></datalist>
+            <span style="font-size:11px; color:var(--grey); display:block; margin-top:4px;">Escribí una categoría existente o una nueva (se crea sola). Dejala vacía para que el producto caiga en "Otros".</span>
+          </div>
+          <div class="field">
+            <label for="prod-precio">Precio público (no registrados)</label>
+            <input id="prod-precio" type="text" inputmode="decimal" placeholder="Ej: 500 o 2.5">
+          </div>
+          <div class="field">
+            <label for="prod-precio-socio">Precio socio (usuarios registrados / reventa)</label>
+            <input id="prod-precio-socio" type="text" inputmode="decimal" placeholder="Ej: 300 o 1.8">
+          </div>
+          <div class="field">
+            <label for="prod-imagen-file">Imagen del producto (opcional)</label>
+            <input id="prod-imagen-file" type="file" accept="image/*">
+            <div id="prod-imagen-preview-wrap" style="margin-top:8px; display:none; align-items:center; gap:10px;">
+              <img id="prod-imagen-preview" src="" alt="Vista previa" style="max-width:140px; max-height:140px; border-radius:10px; display:block; object-fit:cover;">
+              <button type="button" class="mini-btn mini-reject" id="prod-imagen-eliminar-btn">Eliminar imagen</button>
+            </div>
+            <input type="hidden" id="prod-imagen" value="">
+            <span style="font-size:11px; color:var(--grey); display:block; margin-top:4px;">Elegís la foto desde tu compu y se sube tal cual, sin perder calidad ni resolución. Si estás editando un producto y no elegís un archivo nuevo, se mantiene la imagen que ya tenía cargada.</span>
+          </div>
+          <div class="field">
+            <label for="prod-imagen2-file">Segunda imagen (opcional)</label>
+            <input id="prod-imagen2-file" type="file" accept="image/*">
+            <div id="prod-imagen2-preview-wrap" style="margin-top:8px; display:none; align-items:center; gap:10px;">
+              <img id="prod-imagen2-preview" src="" alt="Vista previa" style="max-width:140px; max-height:140px; border-radius:10px; display:block; object-fit:cover;">
+              <button type="button" class="mini-btn mini-reject" id="prod-imagen2-eliminar-btn">Eliminar imagen</button>
+            </div>
+            <input type="hidden" id="prod-imagen2" value="">
+            <span style="font-size:11px; color:var(--grey); display:block; margin-top:4px;">Si cargás una segunda foto, en la página del producto aparece una flecha para pasar de una a la otra, y en el catálogo la imagen cambia al pasar el mouse por encima.</span>
+          </div>
+          <div class="field">
+            <label for="prod-descripcion">Descripción corta (se ve en el catálogo, opcional)</label>
+            <input id="prod-descripcion" type="text" placeholder="Breve descripción del producto">
+          </div>
+          <div class="field">
+            <label for="prod-descripcion-larga">Descripción larga (se ve en la página del producto, opcional)</label>
+            <textarea id="prod-descripcion-larga" rows="4" placeholder="Descripción completa, detalles, qué incluye, etc." style="width:100%; resize:vertical; font-family:'Inter',sans-serif; font-size:13px; background:var(--panel-2); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:10px 12px; color:var(--white);"></textarea>
+            <span style="font-size:11px; color:var(--grey); display:block; margin-top:4px;">Si la dejás vacía, la página del producto muestra la descripción corta.</span>
+          </div>
+          <div class="field" id="prod-keys-field">
+            <label for="prod-keys">Keys iniciales (opcional, una por línea)</label>
+            <textarea id="prod-keys" rows="3" placeholder="ABCD-1234-EFGH&#10;IJKL-5678-MNOP" style="width:100%; resize:vertical; font-family:monospace; font-size:12.5px; background:var(--panel-2); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:10px 12px; color:var(--white);"></textarea>
+            <span style="font-size:11px; color:var(--grey); display:block; margin-top:4px;">Si el producto no entrega una key (por ejemplo, se maneja aparte), dejá esto vacío.</span>
+          </div>
+          <div class="field prod-check-field">
+            <label class="prod-checkbox-label">
+              <input id="prod-agotado" type="checkbox">
+              Marcar como sin stock (los clientes lo ven pero no lo pueden comprar)
+            </label>
+          </div>
+          <div class="form-error" id="prod-form-error"></div>
+          <div style="display:flex; gap:10px;">
+            <button class="btn btn-primary" style="width:100%;" id="prod-submit-btn">Agregar producto</button>
+            <button class="btn btn-secondary" style="width:100%; display:none;" id="prod-cancel-btn">Cancelar edición</button>
+          </div>
+        </div>
+
+        <div id="admin-prod-list" class="admin-list" style="margin-top:24px;">
+          <div class="loading-row">Cargando productos…</div>
+        </div>
+      </div>
+
+      <!-- TAB COMPRAS -->
+      <div id="panel-compras" style="display:none;">
+        <div class="admin-header">
+          <h2>Historial de <span>compras</span></h2>
+        </div>
+        <p class="sub">Quién compró qué, cuánto pagó y qué key se le entregó.</p>
+
+        <div id="admin-compras-list" class="admin-list">
+          <div class="loading-row">Cargando compras…</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script type="module">
+    import {
+      firebaseConfig, ADMIN_PASSWORD,
+      EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, EMAILJS_PUBLIC_KEY,
+      TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, IMGBB_API_KEY
+    } from './firebase-config.js';
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, deleteDoc, query, orderBy, serverTimestamp, increment, arrayUnion, runTransaction }
+      from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const loginBtn = document.getElementById('admin-login-btn');
+    const loginError = document.getElementById('admin-login-error');
+
+    loginBtn.addEventListener('click', () => {
+      const pass = document.getElementById('admin-pass').value;
+      if(pass !== ADMIN_PASSWORD){
+        loginError.textContent = 'Clave incorrecta.';
+        return;
+      }
+      document.getElementById('card-login').style.display = 'none';
+      document.getElementById('card-panel').style.display = 'block';
+      cargarRegistros();
+      cargarSaldos();
+      cargarRecargas();
+      cargarComprasInvitado();
+      cargarProductosAdmin();
+      cargarCompras();
+    });
+
+    /* ---------- tabs ---------- */
+    const tabs = {
+      registros: { btn: document.getElementById('tab-registros'), panel: document.getElementById('panel-registros') },
+      saldos: { btn: document.getElementById('tab-saldos'), panel: document.getElementById('panel-saldos') },
+      recargas: { btn: document.getElementById('tab-recargas'), panel: document.getElementById('panel-recargas') },
+      compras_invitado: { btn: document.getElementById('tab-compras-invitado'), panel: document.getElementById('panel-compras-invitado') },
+      productos: { btn: document.getElementById('tab-productos'), panel: document.getElementById('panel-productos') },
+      compras: { btn: document.getElementById('tab-compras'), panel: document.getElementById('panel-compras') },
+    };
+
+    function activarTab(nombre){
+      Object.entries(tabs).forEach(([key, t]) => {
+        const activo = key === nombre;
+        t.btn.classList.toggle('active', activo);
+        t.panel.style.display = activo ? 'block' : 'none';
+      });
+    }
+
+    tabs.registros.btn.addEventListener('click', () => activarTab('registros'));
+    tabs.saldos.btn.addEventListener('click', () => activarTab('saldos'));
+    tabs.recargas.btn.addEventListener('click', () => activarTab('recargas'));
+    tabs.compras_invitado.btn.addEventListener('click', () => activarTab('compras_invitado'));
+    tabs.productos.btn.addEventListener('click', () => activarTab('productos'));
+    tabs.compras.btn.addEventListener('click', () => activarTab('compras'));
+
+    function escapeHtml(str){
+      const div = document.createElement('div');
+      div.textContent = str == null ? '' : String(str);
+      return div.innerHTML;
+    }
+    function formatearPrecio(n){
+      return '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // Acepta "2,5" o "2.5" y devuelve el número; null si no es válido.
+    function parsearPrecio(texto){
+      if(texto == null) return null;
+      const limpio = String(texto).trim().replace(',', '.');
+      if(!limpio) return null;
+      const n = parseFloat(limpio);
+      return isNaN(n) ? null : n;
+    }
+
+    // Para precargar el input al editar.
+    function precioParaInput(n){
+      if(n == null) return '';
+      return String(n);
+    }
+
+    // Convierte el texto pegado (una key por línea) en un array de keys limpias.
+    function parsearKeys(texto){
+      return String(texto || '')
+        .split('\n')
+        .map(k => k.trim())
+        .filter(Boolean);
+    }
+
+    /* ============================================================
+       REGISTROS
+       ============================================================ */
+    async function cargarRegistros(){
+      const listEl = document.getElementById('admin-list');
+      const tagEl = document.getElementById('pendientes-tag');
+      listEl.innerHTML = '<div class="loading-row">Cargando registros…</div>';
+
+      try{
+        const q = query(collection(db, "registros"), orderBy("fecha", "desc"));
+        const snapshot = await getDocs(q);
+
+        if(snapshot.empty){
+          listEl.innerHTML = '<div class="empty-state">Todavía no hay registros de usuarios.</div>';
+          tagEl.textContent = '0 pendientes';
+          return;
+        }
+
+        const registros = [];
+        snapshot.forEach(docSnap => registros.push({ id: docSnap.id, ...docSnap.data() }));
+
+        const pendientes = registros.filter(r => r.estado === 'pendiente').length;
+        tagEl.textContent = pendientes + ' pendiente' + (pendientes === 1 ? '' : 's');
+
+        listEl.innerHTML = registros.map(r => renderRegCard(r)).join('');
+
+        registros.forEach(r => {
+          const aprobarBtn = document.getElementById('aprobar-' + r.id);
+          const rechazarBtn = document.getElementById('rechazar-' + r.id);
+          if(aprobarBtn) aprobarBtn.addEventListener('click', () => cambiarEstado(r, 'aprobado'));
+          if(rechazarBtn) rechazarBtn.addEventListener('click', () => cambiarEstado(r, 'rechazado'));
+        });
+      }catch(err){
+        console.error('Error al cargar registros:', err);
+        listEl.innerHTML = '<div class="empty-state">No se pudieron cargar los registros. Revisá la configuración de Firebase.</div>';
+      }
+    }
+
+    /* ============================================================
+       SALDOS (pestaña aparte)
+       ============================================================ */
+    async function cargarSaldos(){
+      const listEl = document.getElementById('admin-saldo-list');
+      listEl.innerHTML = '<div class="loading-row">Cargando usuarios…</div>';
+
+      try{
+        const q = query(collection(db, "registros"), orderBy("nombre"));
+        const snapshot = await getDocs(q);
+
+        if(snapshot.empty){
+          listEl.innerHTML = '<div class="empty-state">Todavía no hay usuarios registrados.</div>';
+          return;
+        }
+
+        const registros = [];
+        snapshot.forEach(docSnap => registros.push({ id: docSnap.id, ...docSnap.data() }));
+
+        listEl.innerHTML = registros.map(r => renderSaldoCard(r)).join('');
+
+        registros.forEach(r => {
+          const saldoBtn = document.getElementById('cargar-saldo-' + r.id);
+          const quitarBtn = document.getElementById('quitar-saldo-' + r.id);
+          if(saldoBtn) saldoBtn.addEventListener('click', () => cargarSaldo(r, 1));
+          if(quitarBtn) quitarBtn.addEventListener('click', () => cargarSaldo(r, -1));
+        });
+      }catch(err){
+        console.error('Error al cargar usuarios para saldos:', err);
+        listEl.innerHTML = '<div class="empty-state">No se pudieron cargar los usuarios. Revisá la configuración de Firebase.</div>';
+      }
+    }
+
+    function renderSaldoCard(r){
+      const statusClass = 'status-' + r.estado;
+      const statusLabel = r.estado === 'pendiente' ? 'Pendiente' : (r.estado === 'aprobado' ? 'Aprobado' : 'Rechazado');
+      return `
+        <div class="reg-card">
+          <div class="reg-top">
+            <div>
+              <div class="reg-name">${escapeHtml(r.nombre)}</div>
+              <div class="reg-meta">${escapeHtml(r.email)}</div>
+            </div>
+            <span class="status-pill ${statusClass}">${statusLabel}</span>
+          </div>
+          <div class="reg-saldo-row">
+            <span class="reg-saldo-actual">Saldo: <strong>${formatearPrecio(r.saldo)}</strong></span>
+            <input type="number" class="saldo-input" id="saldo-input-${r.id}" placeholder="Monto" min="1" step="1">
+            <button class="mini-btn mini-saldo" id="cargar-saldo-${r.id}">Cargar saldo</button>
+            <button class="mini-btn mini-quitar" id="quitar-saldo-${r.id}">Quitar saldo</button>
+          </div>
+        </div>
+      `;
+    }
+
+    /* ============================================================
+       RECARGAS
+       ============================================================ */
+    const METODO_LABEL = { transferencia: 'Transferencia', paypal: 'PayPal', binance: 'Binance' };
+
+    async function cargarRecargas(){
+      const listEl = document.getElementById('admin-recargas-list');
+      const tagEl = document.getElementById('recargas-pendientes-tag');
+      listEl.innerHTML = '<div class="loading-row">Cargando recargas…</div>';
+
+      try{
+        const q = query(collection(db, "recargas"), orderBy("fecha", "desc"));
+        const snapshot = await getDocs(q);
+
+        if(snapshot.empty){
+          listEl.innerHTML = '<div class="empty-state">Todavía no hay solicitudes de recarga.</div>';
+          tagEl.textContent = '0 pendientes';
+          return;
+        }
+
+        const recargas = [];
+        snapshot.forEach(docSnap => recargas.push({ id: docSnap.id, ...docSnap.data() }));
+
+        const pendientes = recargas.filter(r => r.estado === 'pendiente').length;
+        tagEl.textContent = pendientes + ' pendiente' + (pendientes === 1 ? '' : 's');
+
+        listEl.innerHTML = recargas.map(r => renderRecargaCard(r)).join('');
+
+        recargas.forEach(r => {
+          const aprobarBtn = document.getElementById('aprobar-recarga-' + r.id);
+          const rechazarBtn = document.getElementById('rechazar-recarga-' + r.id);
+          if(aprobarBtn) aprobarBtn.addEventListener('click', () => resolverRecarga(r, 'aprobado'));
+          if(rechazarBtn) rechazarBtn.addEventListener('click', () => resolverRecarga(r, 'rechazado'));
+        });
+      }catch(err){
+        console.error('Error al cargar recargas:', err);
+        listEl.innerHTML = '<div class="empty-state">No se pudieron cargar las recargas. Revisá la configuración de Firebase.</div>';
+      }
+    }
+
+    function renderRecargaCard(r){
+      const fecha = r.fecha && r.fecha.toDate ? r.fecha.toDate() : new Date();
+      const fechaTxt = fecha.toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' }) +
+                       ' ' + fecha.toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit' });
+
+      const statusClass = 'status-' + r.estado;
+      const statusLabel = r.estado === 'pendiente' ? 'Pendiente' : (r.estado === 'aprobado' ? 'Aprobado' : 'Rechazado');
+      const yaResuelta = r.estado !== 'pendiente';
+
+      const montoTxt = r.moneda === 'pesos' ? ('$' + Number(r.monto).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })) : (Number(r.monto).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USDT');
+      const montoSaldo = r.montoSaldo != null ? r.montoSaldo : r.monto;
+
+      return `
+        <div class="reg-card">
+          <div class="reg-top">
+            <div>
+              <div class="reg-name">${escapeHtml(r.nombre)} — ${montoTxt}</div>
+              <div class="reg-meta">
+                ${escapeHtml(r.email)}<br>
+                Método: ${METODO_LABEL[r.metodo] || escapeHtml(r.metodo)} (tasa: 1 USDT = ${r.tasa || 1} ${r.moneda || 'USDT'})<br>
+                <strong style="color:var(--white);">Saldo a acreditar: ${formatearPrecio(montoSaldo)} USDT</strong><br>
+                ${r.referencia ? `Nº de operación: ${escapeHtml(r.referencia)}<br>` : ''}
+                Comprobante: enviado por WhatsApp (revisalo ahí antes de aprobar)<br>
+                Solicitado el ${fechaTxt}
+              </div>
+            </div>
+            <span class="status-pill ${statusClass}">${statusLabel}</span>
+          </div>
+          <div class="reg-actions">
+            <button class="mini-btn mini-approve" id="aprobar-recarga-${r.id}" ${yaResuelta ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}>Aprobar y sumar saldo</button>
+            <button class="mini-btn mini-reject" id="rechazar-recarga-${r.id}" ${yaResuelta ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}>Rechazar</button>
+          </div>
+        </div>
+      `;
+    }
+
+    async function resolverRecarga(r, nuevoEstado){
+      try{
+        await updateDoc(doc(db, "recargas", r.id), { estado: nuevoEstado });
+
+        if(nuevoEstado === 'aprobado'){
+          const montoSaldo = r.montoSaldo != null ? r.montoSaldo : r.monto;
+          await updateDoc(doc(db, "registros", r.usuarioId), { saldo: increment(montoSaldo) });
+        }
+
+        cargarRecargas();
+        cargarSaldos();
+      }catch(err){
+        console.error('Error al resolver la recarga:', err);
+        alert('No se pudo actualizar la recarga. Probá de nuevo.');
+      }
+    }
+
+    function renderRegCard(r){
+      const fecha = r.fecha && r.fecha.toDate ? r.fecha.toDate() : new Date();
+      const fechaTxt = fecha.toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' }) +
+                       ' ' + fecha.toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit' });
+
+      const statusClass = 'status-' + r.estado;
+      const statusLabel = r.estado === 'pendiente' ? 'Pendiente' : (r.estado === 'aprobado' ? 'Aprobado' : 'Rechazado');
+
+      return `
+        <div class="reg-card">
+          <div class="reg-top">
+            <div>
+              <div class="reg-name">${escapeHtml(r.nombre)}</div>
+              <div class="reg-meta">
+                ${escapeHtml(r.email)}<br>
+                ${escapeHtml(r.whatsapp)}<br>
+                Registrado el ${fechaTxt}
+              </div>
+            </div>
+            <span class="status-pill ${statusClass}">${statusLabel}</span>
+          </div>
+          <div class="reg-actions">
+            <button class="mini-btn mini-approve" id="aprobar-${r.id}" ${r.estado==='aprobado' ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}>Aprobar</button>
+            <button class="mini-btn mini-reject" id="rechazar-${r.id}" ${r.estado==='rechazado' ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}>Rechazar</button>
+          </div>
+        </div>
+      `;
+    }
+
+    async function cargarSaldo(r, signo){
+      const input = document.getElementById('saldo-input-' + r.id);
+      const monto = parseInt(input.value, 10);
+      if(!monto || monto <= 0){
+        alert('Ingresá un monto válido.');
+        return;
+      }
+
+      if(signo < 0 && monto > (r.saldo || 0)){
+        alert('No podés quitar más saldo del que tiene el usuario.');
+        return;
+      }
+
+      try{
+        await updateDoc(doc(db, "registros", r.id), { saldo: increment(signo * monto) });
+        input.value = '';
+        cargarSaldos();
+      }catch(err){
+        console.error('Error al actualizar saldo:', err);
+        alert('No se pudo actualizar el saldo. Probá de nuevo.');
+      }
+    }
+
+    async function cambiarEstado(r, nuevoEstado){
+      try{
+        await updateDoc(doc(db, "registros", r.id), { estado: nuevoEstado });
+
+        // Estas llamadas no bloquean el panel: si el email falla, el
+        // registro igual queda actualizado — pero avisamos con un alert
+        // (con el motivo que devuelve EmailJS) para no depender de la consola.
+        const resultadoEmail = await enviarEmailEstado(r, nuevoEstado);
+        if(!resultadoEmail.ok){
+          alert('El registro se actualizó, pero el email no se pudo enviar. Motivo:\n\n' + resultadoEmail.error);
+        }
+        if(nuevoEstado === 'aprobado'){
+          avisarTelegram(r);
+        }
+
+        cargarRegistros();
+      }catch(err){
+        console.error('Error al actualizar estado:', err);
+        alert('No se pudo actualizar el registro. Probá de nuevo.');
+      }
+    }
+
+    async function enviarEmailEstado(r, estado){
+      const esAprobado = estado === 'aprobado';
+      const asunto = esAprobado
+        ? '¡Tu cuenta en XITERKING STORE fue aprobada!'
+        : 'Novedades sobre tu registro en XITERKING STORE';
+      const mensaje = esAprobado
+        ? `Hola ${r.nombre},\n\n¡Buenas noticias! Tu cuenta en XITERKING STORE fue aprobada.\nYa podés ingresar con tu email y contraseña.\n\n¡Gracias por registrarte!`
+        : `Hola ${r.nombre},\n\nRevisamos tu solicitud de registro en XITERKING STORE y por el momento no fue aprobada.\nSi creés que se trata de un error, podés escribirnos para más información.`;
+
+      try{
+        const resp = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            service_id: EMAILJS_SERVICE_ID,
+            template_id: EMAILJS_TEMPLATE_ID,
+            user_id: EMAILJS_PUBLIC_KEY,
+            template_params: {
+              to_name: r.nombre,
+              to_email: r.email,
+              asunto,
+              mensaje
+            }
+          })
+        });
+        if(!resp.ok){
+          const detalle = await resp.text();
+          console.error('EmailJS respondió con error:', detalle);
+          return { ok: false, error: detalle };
+        }
+        return { ok: true };
+      }catch(err){
+        console.error('Error al enviar email de estado:', err);
+        return { ok: false, error: err.message };
+      }
+    }
+
+    async function avisarTelegram(r){
+      try{
+        const texto = `✅ Aprobaste a ${r.nombre} (${r.email}) en XITERKING STORE.`;
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: TELEGRAM_CHAT_ID,
+            text: texto
+          })
+        });
+      }catch(err){
+        console.error('Error al enviar aviso de Telegram:', err);
+      }
+    }
+
+    /* ============================================================
+       COMPRAS SIN CUENTA (pendientes de aprobación manual)
+       ============================================================ */
+    const METODO_LABEL_CI = { transferencia: 'Transferencia', paypal: 'PayPal', binance: 'Binance' };
+
+    async function cargarComprasInvitado(){
+      const listEl = document.getElementById('admin-compras-invitado-list');
+      const tagEl = document.getElementById('compras-invitado-pendientes-tag');
+      listEl.innerHTML = '<div class="loading-row">Cargando compras…</div>';
+
+      try{
+        const q = query(collection(db, "compras_pendientes"), orderBy("fecha", "desc"));
+        const snapshot = await getDocs(q);
+
+        if(snapshot.empty){
+          listEl.innerHTML = '<div class="empty-state">Todavía no hay compras sin cuenta.</div>';
+          tagEl.textContent = '0 pendientes';
+          return;
+        }
+
+        const compras = [];
+        snapshot.forEach(docSnap => compras.push({ id: docSnap.id, ...docSnap.data() }));
+
+        const pendientes = compras.filter(c => c.estado === 'pendiente').length;
+        tagEl.textContent = pendientes + ' pendiente' + (pendientes === 1 ? '' : 's');
+
+        listEl.innerHTML = compras.map(c => renderCompraInvitadoCard(c)).join('');
+
+        compras.forEach(c => {
+          const aprobarBtn = document.getElementById('aprobar-ci-' + c.id);
+          const rechazarBtn = document.getElementById('rechazar-ci-' + c.id);
+          if(aprobarBtn) aprobarBtn.addEventListener('click', () => aprobarCompraInvitado(c));
+          if(rechazarBtn) rechazarBtn.addEventListener('click', () => rechazarCompraInvitado(c));
+        });
+      }catch(err){
+        console.error('Error al cargar compras sin cuenta:', err);
+        listEl.innerHTML = '<div class="empty-state">No se pudieron cargar. Revisá la configuración de Firebase.</div>';
+      }
+    }
+
+    function renderCompraInvitadoCard(c){
+      const fecha = c.fecha && c.fecha.toDate ? c.fecha.toDate() : new Date();
+      const fechaTxt = fecha.toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' }) +
+                       ' ' + fecha.toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit' });
+
+      const statusClass = 'status-' + c.estado;
+      const statusLabel = c.estado === 'pendiente' ? 'Pendiente' : (c.estado === 'aprobado' ? 'Aprobado' : 'Rechazado');
+      const yaResuelta = c.estado !== 'pendiente';
+
+      const montoTxt = c.moneda === 'pesos'
+        ? ('$' + Number(c.montoPagado).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))
+        : (Number(c.montoPagado).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' USDT');
+
+      return `
+        <div class="reg-card">
+          <div class="reg-top">
+            <div>
+              <div class="reg-name">${escapeHtml(c.productoNombre)} — ${montoTxt}</div>
+              <div class="reg-meta">
+                Email: ${escapeHtml(c.email)}<br>
+                Método: ${METODO_LABEL_CI[c.metodo] || escapeHtml(c.metodo)}<br>
+                ${c.referencia ? `Nº de operación: ${escapeHtml(c.referencia)}<br>` : ''}
+                ${c.key ? `Key entregada: <strong>${escapeHtml(c.key)}</strong><br>` : ''}
+                Comprobante: enviado por WhatsApp (revisalo ahí antes de aprobar)<br>
+                Solicitado el ${fechaTxt}
+              </div>
+            </div>
+            <span class="status-pill ${statusClass}">${statusLabel}</span>
+          </div>
+          <div class="reg-actions">
+            <button class="mini-btn mini-approve" id="aprobar-ci-${c.id}" ${yaResuelta ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}>Aprobar y mandar key</button>
+            <button class="mini-btn mini-reject" id="rechazar-ci-${c.id}" ${yaResuelta ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}>Rechazar</button>
+          </div>
+        </div>
+      `;
+    }
+
+    async function aprobarCompraInvitado(c){
+      try{
+        const prodRef = doc(db, "productos", c.productoId);
+        const pendienteRef = doc(db, "compras_pendientes", c.id);
+        const compraRef = doc(collection(db, "compras"));
+        let keyAsignada = null;
+
+        // Misma lógica que una compra con saldo: se saca una key del stock
+        // del producto (si usa) y se deja el registro final en "compras",
+        // todo en una transacción para que no se reparta una key dos veces.
+        await runTransaction(db, async (transaction) => {
+          const prodSnap = await transaction.get(prodRef);
+          if(!prodSnap.exists()) throw new Error('PRODUCTO_NO_ENCONTRADO');
+
+          const prodData = prodSnap.data();
+          if(Array.isArray(prodData.keys)){
+            if(!prodData.keys.length) throw new Error('SIN_STOCK');
+            keyAsignada = prodData.keys[0];
+            transaction.update(prodRef, { keys: prodData.keys.slice(1) });
+          }
+
+          transaction.update(pendienteRef, { estado: 'aprobado', key: keyAsignada });
+          transaction.set(compraRef, {
+            usuarioId: null,
+            usuarioNombre: 'Invitado (sin cuenta)',
+            usuarioEmail: c.email,
+            productoId: c.productoId,
+            productoNombre: c.productoNombre,
+            precio: c.precio,
+            key: keyAsignada,
+            metodoPago: c.metodo,
+            fecha: serverTimestamp()
+          });
+        });
+
+        // Si el email falla, la compra queda igual aprobada y con la key
+        // guardada (acá y en "compras") — se puede reenviar a mano si hace
+        // falta. Avisamos con un alert el motivo, para no depender de la consola.
+        const resultadoEmail = await enviarEmailKey(c.email, c.productoNombre, keyAsignada);
+        if(!resultadoEmail.ok){
+          alert('La compra se aprobó y la key se descontó del stock, pero el email no se pudo enviar. Motivo:\n\n' + resultadoEmail.error + '\n\nLa key es: ' + (keyAsignada || '(este producto no entrega key)'));
+        }
+
+        cargarComprasInvitado();
+        cargarCompras();
+        cargarProductosAdmin();
+      }catch(err){
+        console.error('Error al aprobar la compra sin cuenta:', err);
+        if(err.message === 'SIN_STOCK'){
+          alert('Ese producto se quedó sin stock de keys. Cargale más keys antes de aprobar esta compra.');
+        }else{
+          alert('No se pudo aprobar la compra. Probá de nuevo.');
+        }
+      }
+    }
+
+    async function rechazarCompraInvitado(c){
+      try{
+        await updateDoc(doc(db, "compras_pendientes", c.id), { estado: 'rechazado' });
+
+        const resultadoEmail = await enviarEmailRechazo(c.email, c.productoNombre);
+        if(!resultadoEmail.ok){
+          alert('La compra quedó marcada como rechazada, pero el email de aviso no se pudo enviar. Motivo:\n\n' + resultadoEmail.error);
+        }
+
+        cargarComprasInvitado();
+      }catch(err){
+        console.error('Error al rechazar la compra sin cuenta:', err);
+        alert('No se pudo rechazar la compra. Probá de nuevo.');
+      }
+    }
+
+    async function enviarEmailRechazo(email, productoNombre){
+      const asunto = `Tu compra de "${productoNombre}" en XITERKING STORE no fue aprobada`;
+      const mensaje = `Hola,\n\nRevisamos tu solicitud de compra de "${productoNombre}" en XITERKING STORE y no pudimos aprobarla (no llegamos a verificar el comprobante o hubo algún problema con el pago).\n\nSi creés que es un error o querés volver a intentarlo, respondé este email o escribinos por WhatsApp.`;
+
+      try{
+        const resp = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            service_id: EMAILJS_SERVICE_ID,
+            template_id: EMAILJS_TEMPLATE_ID,
+            user_id: EMAILJS_PUBLIC_KEY,
+            template_params: {
+              to_name: email,
+              to_email: email,
+              asunto,
+              mensaje
+            }
+          })
+        });
+        if(!resp.ok){
+          const detalle = await resp.text();
+          console.error('EmailJS respondió con error:', detalle);
+          return { ok: false, error: detalle };
+        }
+        return { ok: true };
+      }catch(err){
+        console.error('Error al enviar email de rechazo:', err);
+        return { ok: false, error: err.message };
+      }
+    }
+
+    async function enviarEmailKey(email, productoNombre, key){
+      const asunto = `¡Tu compra de "${productoNombre}" en XITERKING STORE fue aprobada!`;
+      const mensaje = key
+        ? `¡Gracias por tu compra en XITERKING STORE!\n\nProducto: ${productoNombre}\nTu key: ${key}\n\nCualquier consulta, respondé este email.`
+        : `¡Gracias por tu compra en XITERKING STORE!\n\nTu compra de "${productoNombre}" ya fue aprobada. En breve nos comunicamos con los detalles de entrega.\n\nCualquier consulta, respondé este email.`;
+
+      try{
+        const resp = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            service_id: EMAILJS_SERVICE_ID,
+            template_id: EMAILJS_TEMPLATE_ID,
+            user_id: EMAILJS_PUBLIC_KEY,
+            template_params: {
+              to_name: email,
+              to_email: email,
+              asunto,
+              mensaje
+            }
+          })
+        });
+        if(!resp.ok){
+          const detalle = await resp.text();
+          console.error('EmailJS respondió con error:', detalle);
+          return { ok: false, error: detalle };
+        }
+        return { ok: true };
+      }catch(err){
+        console.error('Error al enviar email con la key:', err);
+        return { ok: false, error: err.message };
+      }
+    }
+
+    /* ============================================================
+       PRODUCTOS
+       ============================================================ */
+    let productosCache = [];
+
+    const prodNombre = document.getElementById('prod-nombre');
+    const prodCategoria = document.getElementById('prod-categoria');
+    const prodPrecio = document.getElementById('prod-precio');
+    const prodPrecioSocio = document.getElementById('prod-precio-socio');
+    const prodImagen = document.getElementById('prod-imagen');
+    const prodImagenFile = document.getElementById('prod-imagen-file');
+    const prodImagenPreview = document.getElementById('prod-imagen-preview');
+    const prodImagenPreviewWrap = document.getElementById('prod-imagen-preview-wrap');
+    const prodImagen2 = document.getElementById('prod-imagen2');
+    const prodImagen2File = document.getElementById('prod-imagen2-file');
+    const prodImagen2Preview = document.getElementById('prod-imagen2-preview');
+    const prodImagen2PreviewWrap = document.getElementById('prod-imagen2-preview-wrap');
+    const prodImagenEliminarBtn = document.getElementById('prod-imagen-eliminar-btn');
+    const prodImagen2EliminarBtn = document.getElementById('prod-imagen2-eliminar-btn');
+    const prodDescripcion = document.getElementById('prod-descripcion');
+    const prodDescripcionLarga = document.getElementById('prod-descripcion-larga');
+    const prodAgotado = document.getElementById('prod-agotado');
+    const prodKeys = document.getElementById('prod-keys');
+    const prodEditId = document.getElementById('prod-edit-id');
+    const prodFormError = document.getElementById('prod-form-error');
+    const prodSubmitBtn = document.getElementById('prod-submit-btn');
+    const prodCancelBtn = document.getElementById('prod-cancel-btn');
+
+    prodSubmitBtn.addEventListener('click', guardarProducto);
+    prodCancelBtn.addEventListener('click', cancelarEdicionProducto);
+
+    // Guarda la foto original elegida (sin comprimir) para subirla recién
+    // al guardar el producto. La vista previa se arma con la imagen tal
+    // cual, así se ve exactamente con la calidad que va a quedar subida.
+    let prodImagenArchivoNuevo = null;
+
+    prodImagenFile.addEventListener('change', () => {
+      const archivo = prodImagenFile.files[0];
+      prodFormError.textContent = '';
+      if(!archivo) return;
+
+      if(!archivo.type.startsWith('image/')){
+        prodFormError.textContent = 'Ese archivo no es una imagen.';
+        prodImagenFile.value = '';
+        return;
+      }
+      if(archivo.size > 15 * 1024 * 1024){
+        prodFormError.textContent = 'La imagen pesa demasiado (máximo 15MB). Probá con otra foto.';
+        prodImagenFile.value = '';
+        return;
+      }
+
+      prodImagenArchivoNuevo = archivo;
+      prodImagenPreview.src = URL.createObjectURL(archivo);
+      prodImagenPreviewWrap.style.display = 'flex';
+    });
+
+    // Misma lógica que la imagen principal, pero para la segunda foto opcional.
+    let prodImagenArchivoNuevo2 = null;
+
+    prodImagen2File.addEventListener('change', () => {
+      const archivo = prodImagen2File.files[0];
+      prodFormError.textContent = '';
+      if(!archivo) return;
+
+      if(!archivo.type.startsWith('image/')){
+        prodFormError.textContent = 'Ese archivo no es una imagen.';
+        prodImagen2File.value = '';
+        return;
+      }
+      if(archivo.size > 15 * 1024 * 1024){
+        prodFormError.textContent = 'La imagen pesa demasiado (máximo 15MB). Probá con otra foto.';
+        prodImagen2File.value = '';
+        return;
+      }
+
+      prodImagenArchivoNuevo2 = archivo;
+      prodImagen2Preview.src = URL.createObjectURL(archivo);
+      prodImagen2PreviewWrap.style.display = 'flex';
+    });
+
+    // Botones "Eliminar imagen": borran tanto la foto ya subida (guardada
+    // en el campo oculto) como el archivo nuevo que se hubiera elegido,
+    // y ocultan la vista previa. Al guardar el producto, se va a guardar
+    // sin esa foto.
+    prodImagenEliminarBtn.addEventListener('click', () => {
+      prodImagen.value = '';
+      prodImagenFile.value = '';
+      prodImagenArchivoNuevo = null;
+      prodImagenPreviewWrap.style.display = 'none';
+      prodImagenPreview.src = '';
+    });
+
+    prodImagen2EliminarBtn.addEventListener('click', () => {
+      prodImagen2.value = '';
+      prodImagen2File.value = '';
+      prodImagenArchivoNuevo2 = null;
+      prodImagen2PreviewWrap.style.display = 'none';
+      prodImagen2Preview.src = '';
+    });
+
+    // Sube la foto a imgBB (gratis, sin depender de Firebase Storage) y
+    // devuelve el link público para guardar en el producto.
+    async function subirImagenProducto(archivo){
+      const formData = new FormData();
+      formData.append('image', archivo);
+
+      const respuesta = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await respuesta.json();
+      if(!respuesta.ok || !data.success){
+        throw new Error('IMGBB_UPLOAD_FALLO');
+      }
+      return data.data.url;
+    }
+
+    async function cargarProductosAdmin(){
+      const listEl = document.getElementById('admin-prod-list');
+      listEl.innerHTML = '<div class="loading-row">Cargando productos…</div>';
+
+      try{
+        const q = query(collection(db, "productos"), orderBy("fecha", "desc"));
+        const snapshot = await getDocs(q);
+
+        productosCache = [];
+        snapshot.forEach(docSnap => productosCache.push({ id: docSnap.id, ...docSnap.data() }));
+
+        if(!productosCache.length){
+          listEl.innerHTML = '<div class="empty-state">Todavía no cargaste productos.</div>';
+          return;
+        }
+
+        listEl.innerHTML = productosCache.map(p => renderProdCard(p)).join('');
+
+        // arma la lista de sugerencias con las categorías ya usadas,
+        // así el admin no tiene que recordar cómo escribió cada una
+        const categoriasExistentes = [...new Set(
+          productosCache.map(p => (p.categoria || '').trim()).filter(Boolean)
+        )].sort((a, b) => a.localeCompare(b));
+        document.getElementById('prod-categoria-list').innerHTML =
+          categoriasExistentes.map(c => `<option value="${escapeHtml(c)}"></option>`).join('');
+
+        productosCache.forEach(p => {
+          const editBtn = document.getElementById('editar-prod-' + p.id);
+          const toggleBtn = document.getElementById('toggle-prod-' + p.id);
+          const stockBtn = document.getElementById('toggle-stock-' + p.id);
+          const keysBtn = document.getElementById('agregar-keys-' + p.id);
+          const delBtn = document.getElementById('borrar-prod-' + p.id);
+          if(editBtn) editBtn.addEventListener('click', () => editarProducto(p));
+          if(toggleBtn) toggleBtn.addEventListener('click', () => toggleActivoProducto(p));
+          if(stockBtn) stockBtn.addEventListener('click', () => toggleStockProducto(p));
+          if(keysBtn) keysBtn.addEventListener('click', () => agregarKeys(p));
+          if(delBtn) delBtn.addEventListener('click', () => borrarProducto(p));
+        });
+      }catch(err){
+        console.error('Error al cargar productos:', err);
+        listEl.innerHTML = '<div class="empty-state">No se pudieron cargar los productos. Revisá la configuración de Firebase.</div>';
+      }
+    }
+
+    function renderProdCard(p){
+      const activo = p.activo !== false;
+      const agotado = !!p.agotado;
+      const usaKeys = Array.isArray(p.keys);
+      return `
+        <div class="reg-card">
+          <div class="reg-top">
+            <div>
+              <div class="reg-name">${escapeHtml(p.nombre)}${p.categoria ? ` <span style="font-size:11px; font-weight:600; color:var(--red-light); border:1px solid rgba(225,6,0,0.4); border-radius:20px; padding:2px 8px; margin-left:6px; vertical-align:middle;">${escapeHtml(p.categoria)}</span>` : ''}</div>
+              <div class="reg-meta">
+                Público: ${formatearPrecio(p.precio)} · Socio: ${formatearPrecio(p.precioSocio != null ? p.precioSocio : p.precio)}${p.descripcion ? ' — ' + escapeHtml(p.descripcion) : ''}
+              </div>
+              ${usaKeys ? `<div class="reg-meta">Keys en stock: <strong>${p.keys.length}</strong></div>` : ''}
+            </div>
+            <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+              <span class="status-pill ${activo ? 'status-aprobado' : 'status-rechazado'}">${activo ? 'Activo' : 'Oculto'}</span>
+              ${(agotado || (usaKeys && p.keys.length === 0)) ? '<span class="status-pill status-pendiente">Sin stock</span>' : ''}
+            </div>
+          </div>
+          <div class="reg-actions">
+            <button class="mini-btn mini-saldo" id="editar-prod-${p.id}">Editar</button>
+            <button class="mini-btn mini-approve" id="toggle-prod-${p.id}">${activo ? 'Ocultar' : 'Activar'}</button>
+            <button class="mini-btn mini-saldo" id="toggle-stock-${p.id}">${agotado ? 'Marcar con stock' : 'Marcar sin stock'}</button>
+            <button class="mini-btn mini-saldo" id="agregar-keys-${p.id}">${usaKeys ? 'Cargar más keys' : 'Activar sistema de keys'}</button>
+            <button class="mini-btn mini-reject" id="borrar-prod-${p.id}">Borrar</button>
+          </div>
+        </div>
+      `;
+    }
+
+    async function guardarProducto(){
+      const nombre = prodNombre.value.trim();
+      const categoria = prodCategoria.value.trim();
+      const precio = parsearPrecio(prodPrecio.value);
+      const precioSocioRaw = prodPrecioSocio.value.trim();
+      const precioSocio = precioSocioRaw ? parsearPrecio(precioSocioRaw) : precio;
+      const descripcion = prodDescripcion.value.trim();
+      const descripcionLarga = prodDescripcionLarga.value.trim();
+      const agotado = prodAgotado.checked;
+      const editId = prodEditId.value;
+
+      prodFormError.textContent = '';
+
+      if(!nombre || precio == null || precio <= 0){
+        prodFormError.textContent = 'Completá el nombre y un precio público válido.';
+        return;
+      }
+      if(precioSocio == null || precioSocio <= 0){
+        prodFormError.textContent = 'El precio socio tiene que ser un número válido.';
+        return;
+      }
+
+      prodSubmitBtn.disabled = true;
+      const textoBtnOriginal = prodSubmitBtn.textContent;
+
+      try{
+        // imagen ya guardada (si estamos editando y no se eligió una foto nueva)
+        let imagen = prodImagen.value;
+        let imagen2 = prodImagen2.value;
+
+        // si el usuario eligió una foto nueva, la subimos ahora a Storage,
+        // tal cual, sin recomprimir
+        if(prodImagenArchivoNuevo){
+          prodSubmitBtn.textContent = 'Subiendo imagen…';
+          imagen = await subirImagenProducto(prodImagenArchivoNuevo);
+          prodImagen.value = imagen;
+          prodImagenArchivoNuevo = null;
+        }
+        if(prodImagenArchivoNuevo2){
+          prodSubmitBtn.textContent = 'Subiendo segunda imagen…';
+          imagen2 = await subirImagenProducto(prodImagenArchivoNuevo2);
+          prodImagen2.value = imagen2;
+          prodImagenArchivoNuevo2 = null;
+        }
+
+        prodSubmitBtn.textContent = editId ? 'Guardar cambios' : 'Agregar producto';
+
+        if(editId){
+          await updateDoc(doc(db, "productos", editId), { nombre, categoria, precio, precioSocio, imagen, imagen2, descripcion, descripcionLarga, agotado });
+        }else{
+          const keysIniciales = parsearKeys(prodKeys.value);
+          const datos = {
+            nombre, categoria, precio, precioSocio, imagen, imagen2, descripcion, descripcionLarga, agotado,
+            activo: true,
+            fecha: serverTimestamp()
+          };
+          if(keysIniciales.length) datos.keys = keysIniciales;
+          await addDoc(collection(db, "productos"), datos);
+        }
+        cancelarEdicionProducto();
+        cargarProductosAdmin();
+      }catch(err){
+        console.error('Error al guardar producto:', err);
+        prodFormError.textContent = 'No se pudo guardar el producto. Probá de nuevo.';
+        prodSubmitBtn.textContent = textoBtnOriginal;
+      }finally{
+        prodSubmitBtn.disabled = false;
+      }
+    }
+
+    function editarProducto(p){
+      prodEditId.value = p.id;
+      prodImagenArchivoNuevo = null;
+      prodImagenArchivoNuevo2 = null;
+      prodNombre.value = p.nombre || '';
+      prodCategoria.value = p.categoria || '';
+      prodPrecio.value = precioParaInput(p.precio);
+      prodPrecioSocio.value = precioParaInput(p.precioSocio != null ? p.precioSocio : p.precio);
+      prodImagen.value = p.imagen || '';
+      prodImagenFile.value = '';
+      if(p.imagen){
+        prodImagenPreview.src = p.imagen;
+        prodImagenPreviewWrap.style.display = 'flex';
+      }else{
+        prodImagenPreviewWrap.style.display = 'none';
+      }
+      prodImagen2.value = p.imagen2 || '';
+      prodImagen2File.value = '';
+      if(p.imagen2){
+        prodImagen2Preview.src = p.imagen2;
+        prodImagen2PreviewWrap.style.display = 'flex';
+      }else{
+        prodImagen2PreviewWrap.style.display = 'none';
+      }
+      prodDescripcion.value = p.descripcion || '';
+      prodDescripcionLarga.value = p.descripcionLarga || '';
+      prodAgotado.checked = !!p.agotado;
+      prodSubmitBtn.textContent = 'Guardar cambios';
+      prodCancelBtn.style.display = 'block';
+      prodFormError.textContent = '';
+      document.getElementById('prod-keys-field').style.display = 'none';
+      document.getElementById('prod-form').scrollIntoView({ behavior:'smooth', block:'center' });
+    }
+
+    function cancelarEdicionProducto(){
+      prodEditId.value = '';
+      prodImagenArchivoNuevo = null;
+      prodImagenArchivoNuevo2 = null;
+      prodNombre.value = '';
+      prodCategoria.value = '';
+      prodPrecio.value = '';
+      prodPrecioSocio.value = '';
+      prodImagen.value = '';
+      prodImagenFile.value = '';
+      prodImagenPreviewWrap.style.display = 'none';
+      prodImagen2.value = '';
+      prodImagen2File.value = '';
+      prodImagen2PreviewWrap.style.display = 'none';
+      prodDescripcion.value = '';
+      prodDescripcionLarga.value = '';
+      prodAgotado.checked = false;
+      prodKeys.value = '';
+      prodSubmitBtn.textContent = 'Agregar producto';
+      prodCancelBtn.style.display = 'none';
+      prodFormError.textContent = '';
+      document.getElementById('prod-keys-field').style.display = 'block';
+    }
+
+    async function agregarKeys(p){
+      const texto = prompt('Pegá las keys nuevas para "' + p.nombre + '" (una por línea):');
+      if(texto == null) return;
+      const nuevas = parsearKeys(texto);
+      if(!nuevas.length){
+        alert('No se cargó ninguna key válida.');
+        return;
+      }
+      try{
+        await updateDoc(doc(db, "productos", p.id), { keys: arrayUnion(...nuevas) });
+        cargarProductosAdmin();
+      }catch(err){
+        console.error('Error al agregar keys:', err);
+        alert('No se pudieron agregar las keys.');
+      }
+    }
+
+    async function toggleActivoProducto(p){
+      try{
+        await updateDoc(doc(db, "productos", p.id), { activo: !(p.activo !== false) });
+        cargarProductosAdmin();
+      }catch(err){
+        console.error('Error al cambiar estado del producto:', err);
+        alert('No se pudo actualizar el producto.');
+      }
+    }
+
+    async function toggleStockProducto(p){
+      try{
+        await updateDoc(doc(db, "productos", p.id), { agotado: !p.agotado });
+        cargarProductosAdmin();
+      }catch(err){
+        console.error('Error al cambiar el stock del producto:', err);
+        alert('No se pudo actualizar el producto.');
+      }
+    }
+
+    async function borrarProducto(p){
+      if(!confirm(`¿Borrar "${p.nombre}" definitivamente?`)) return;
+      try{
+        await deleteDoc(doc(db, "productos", p.id));
+        cargarProductosAdmin();
+      }catch(err){
+        console.error('Error al borrar producto:', err);
+        alert('No se pudo borrar el producto.');
+      }
+    }
+
+    /* ============================================================
+       COMPRAS (historial)
+       ============================================================ */
+    async function cargarCompras(){
+      const listEl = document.getElementById('admin-compras-list');
+      listEl.innerHTML = '<div class="loading-row">Cargando compras…</div>';
+
+      try{
+        const q = query(collection(db, "compras"), orderBy("fecha", "desc"));
+        const snapshot = await getDocs(q);
+
+        if(snapshot.empty){
+          listEl.innerHTML = '<div class="empty-state">Todavía no se registró ninguna compra.</div>';
+          return;
+        }
+
+        const compras = [];
+        snapshot.forEach(d => compras.push(d.data()));
+
+        listEl.innerHTML = compras.map(c => {
+          const fecha = c.fecha && c.fecha.toDate ? c.fecha.toDate().toLocaleString('es-AR') : '';
+          return `
+            <div class="reg-card">
+              <div class="reg-top">
+                <div>
+                  <div class="reg-name">${escapeHtml(c.productoNombre)}</div>
+                  <div class="reg-meta">
+                    ${escapeHtml(c.usuarioNombre)} (${escapeHtml(c.usuarioEmail)}) — pagó ${formatearPrecio(c.precio)}
+                  </div>
+                  ${c.key ? `<div class="reg-meta">Key entregada: <strong>${escapeHtml(c.key)}</strong></div>` : `<div class="reg-meta">Este producto no entrega key.</div>`}
+                </div>
+                <span class="reg-meta" style="white-space:nowrap;">${escapeHtml(fecha)}</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }catch(err){
+        console.error('Error al cargar el historial de compras:', err);
+        listEl.innerHTML = '<div class="empty-state">No se pudo cargar el historial. Revisá la configuración de Firebase.</div>';
+      }
+    }
+  </script>
+  <!-- SOPORTE FLOTANTE (visible en toda la página) -->
+  <div class="soporte-flotante" id="soporte-flotante">
+    <div class="soporte-menu" id="soporte-menu">
+      <a class="soporte-opcion soporte-wsp" id="soporte-wsp-link" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.8-1.9-.9-.3-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.3-.1-1.1-.4-2.1-1.3-.8-.7-1.3-1.6-1.5-1.8-.2-.3 0-.4.1-.6.1-.1.3-.3.4-.5.1-.1.2-.3.2-.4.1-.2 0-.3 0-.5-.1-.1-.6-1.5-.8-2-.2-.5-.4-.4-.6-.5h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.3 0 1.3 1 2.6 1.1 2.8.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.3.2-.6.2-1.1.2-1.3-.1-.1-.3-.2-.6-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 5L2 22l5.2-1.4C8.6 21.5 10.3 22 12 22c5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3.1.8.8-3-.2-.3C4 14.7 3.6 13.4 3.6 12c0-4.6 3.8-8.4 8.4-8.4s8.4 3.8 8.4 8.4-3.8 8.4-8.4 8.4z"/></svg>
+        WhatsApp
+      </a>
+      <a class="soporte-opcion soporte-discord" id="soporte-discord-link" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.3 4.4A19.8 19.8 0 0 0 15.6 3c-.2.4-.5.9-.7 1.3a18.3 18.3 0 0 0-5.8 0c-.2-.4-.4-.9-.7-1.3-1.6.3-3.2.8-4.7 1.4C1 8.7.3 13 .6 17.1a20 20 0 0 0 6 3c.5-.6.9-1.3 1.3-2-.7-.3-1.4-.6-2-1 .2-.1.3-.3.5-.4a14.3 14.3 0 0 0 12.2 0c.2.1.3.3.5.4-.6.4-1.3.7-2 1 .4.7.8 1.4 1.3 2a20 20 0 0 0 6-3c.4-4.7-.8-9-3.1-12.7zM8.5 14.6c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2zm7 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2z"/></svg>
+        Discord
+      </a>
+    </div>
+    <button class="soporte-btn" id="soporte-btn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.5 0 10-4 10-9s-4.5-9-10-9-10 4-10 9c0 2 1 4 2.5 5.5L4 22l4.5-1.5C9.6 21 10.8 22 12 22z"/></svg>
+      <span class="soporte-btn-label">Soporte</span>
+    </button>
+  </div>
+
+  <script type="module">
+    import { WHATSAPP_RECARGAS, DISCORD_INVITE } from './firebase-config.js';
+
+    const soporteWspTexto = encodeURIComponent('Hola! Necesito ayuda con XITERKING STORE.');
+    document.getElementById('soporte-wsp-link').href = `https://wa.me/${WHATSAPP_RECARGAS}?text=${soporteWspTexto}`;
+    document.getElementById('soporte-discord-link').href = DISCORD_INVITE;
+
+    const soporteFlotante = document.getElementById('soporte-flotante');
+    document.getElementById('soporte-btn').addEventListener('click', () => {
+      soporteFlotante.classList.toggle('open');
+    });
+    document.addEventListener('click', (e) => {
+      if(!soporteFlotante.contains(e.target)) soporteFlotante.classList.remove('open');
+    });
+  </script>
+</body>
+</html>
