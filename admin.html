@@ -88,7 +88,7 @@
           <h2>Compras <span>sin cuenta</span></h2>
           <span class="admin-tag" id="compras-invitado-pendientes-tag">0 pendientes</span>
         </div>
-        <p class="sub">Compras pagadas por transferencia/PayPal/Binance sin iniciar sesión. Revisá el comprobante que te llegó por WhatsApp antes de aprobar.</p>
+        <p class="sub">Compras pagadas por transferencia/PayPal/Binance sin iniciar sesión.</p>
 
         <div id="admin-compras-invitado-list" class="admin-list">
           <div class="loading-row">Cargando compras…</div>
@@ -102,55 +102,7 @@
         </div>
         <p class="sub">Cargá los productos que la gente va a poder comprar con su saldo.</p>
 
-        <div class="prod-form" id="prod-form">
-          <input type="hidden" id="prod-edit-id" value="">
-          <div class="field">
-            <label for="prod-nombre">Nombre</label>
-            <input id="prod-nombre" type="text" placeholder="Ej: Cuenta Premium">
-          </div>
-          <div class="field">
-            <label for="prod-categoria">Categoría</label>
-            <input id="prod-categoria" type="text" list="prod-categoria-list" placeholder="Ej: Streaming, Gaming, Software…">
-            <datalist id="prod-categoria-list"></datalist>
-          </div>
-          <div class="field">
-            <label for="prod-precio">Precio público (no registrados)</label>
-            <input id="prod-precio" type="text" inputmode="decimal" placeholder="Ej: 500 o 2.5">
-          </div>
-          <div class="field">
-            <label for="prod-precio-socio">Precio socio (usuarios registrados / reventa)</label>
-            <input id="prod-precio-socio" type="text" inputmode="decimal" placeholder="Ej: 300 o 1.8">
-          </div>
-          <div class="field">
-            <label for="prod-imagen-file">Imagen del producto (opcional)</label>
-            <input id="prod-imagen-file" type="file" accept="image/*">
-          </div>
-          <div class="field">
-            <label for="prod-descripcion">Descripción corta (se ve en el catálogo, opcional)</label>
-            <input id="prod-descripcion" type="text" placeholder="Breve descripción del producto">
-          </div>
-          <div class="field">
-            <label for="prod-descripcion-larga">Descripción larga (se ve en la página del producto, opcional)</label>
-            <textarea id="prod-descripcion-larga" rows="4" placeholder="Descripción completa, detalles, qué incluye, etc." style="width:100%; resize:vertical; font-family:'Inter',sans-serif; font-size:13px;"></textarea>
-          </div>
-          <div class="field" id="prod-keys-field">
-            <label for="prod-keys">Keys iniciales (opcional, una por línea)</label>
-            <textarea id="prod-keys" rows="3" placeholder="ABCD-1234-EFGH&#10;IJKL-5678-MNOP" style="width:100%; resize:vertical; font-family:monospace; font-size:12.5px; background:var(--panel-2);"></textarea>
-          </div>
-          <div class="field prod-check-field">
-            <label class="prod-checkbox-label">
-              <input id="prod-agotado" type="checkbox">
-              Marcar como sin stock (los clientes lo ven pero no lo pueden comprar)
-            </label>
-          </div>
-          <div class="form-error" id="prod-form-error"></div>
-          <div style="display:flex; gap:10px;">
-            <button class="btn btn-primary" style="width:100%;" id="prod-submit-btn">Agregar producto</button>
-            <button class="btn btn-secondary" style="width:100%; display:none;" id="prod-cancel-btn">Cancelar edición</button>
-          </div>
-        </div>
-
-        <div id="admin-prod-list" class="admin-list" style="margin-top:24px;">
+        <div id="admin-prod-list" class="admin-list">
           <div class="loading-row">Cargando productos…</div>
         </div>
       </div>
@@ -214,7 +166,7 @@
       TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, IMGBB_API_KEY
     } from './firebase-config.js';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, deleteDoc, query, orderBy, serverTimestamp, increment, arrayUnion, runTransaction }
+    import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, deleteDoc, query, orderBy, serverTimestamp, increment, arrayUnion }
       from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
     const app = initializeApp(firebaseConfig);
@@ -234,6 +186,7 @@
       cargarRegistros();
       cargarSaldos();
       cargarRecargas();
+      cargarProductos();
       cargarCupones();
       cargarCompras();
     });
@@ -261,8 +214,8 @@
     tabs.saldos.btn.addEventListener('click', () => activarTab('saldos'));
     tabs.recargas.btn.addEventListener('click', () => activarTab('recargas'));
     tabs.compras_invitado.btn.addEventListener('click', () => activarTab('compras_invitado'));
-    tabs.productos.btn.addEventListener('click', () => activarTab('productos'));
-    tabs.cupones.btn.addEventListener('click', () => activarTab('cupones'));
+    tabs.productos.btn.addEventListener('click', () => { activarTab('productos'); cargarProductos(); });
+    tabs.cupones.btn.addEventListener('click', () => { activarTab('cupones'); cargarCupones(); });
     tabs.compras.btn.addEventListener('click', () => activarTab('compras'));
 
     function escapeHtml(str){
@@ -295,50 +248,35 @@
         const pendientes = registros.filter(r => r.estado === 'pendiente').length;
         tagEl.textContent = pendientes + ' pendiente' + (pendientes === 1 ? '' : 's');
 
-        listEl.innerHTML = registros.map(r => renderRegCard(r)).join('');
-
-        registros.forEach(r => {
-          const aprobarBtn = document.getElementById('aprobar-' + r.id);
-          const rechazarBtn = document.getElementById('rechazar-' + r.id);
-          if(aprobarBtn) aprobarBtn.addEventListener('click', () => cambiarEstado(r, 'aprobado'));
-          if(rechazarBtn) rechazarBtn.addEventListener('click', () => cambiarEstado(r, 'rechazado'));
-        });
+        listEl.innerHTML = registros.map(r => `
+          <div class="reg-card">
+            <div class="reg-top">
+              <div>
+                <div class="reg-name">${escapeHtml(r.nombre)}</div>
+                <div class="reg-meta">${escapeHtml(r.email)}<br>${escapeHtml(r.whatsapp || '')}</div>
+              </div>
+              <span class="status-pill status-${r.estado}">${r.estado === 'pendiente' ? 'Pendiente' : (r.estado === 'aprobado' ? 'Aprobado' : 'Rechazado')}</span>
+            </div>
+            <div class="reg-actions">
+              <button class="mini-btn mini-approve" onclick="cambiarEstado('${r.id}', 'aprobado')">Aprobar</button>
+              <button class="mini-btn mini-reject" onclick="cambiarEstado('${r.id}', 'rechazado')">Rechazar</button>
+            </div>
+          </div>
+        `).join('');
       }catch(err){
         console.error('Error al cargar registros:', err);
         listEl.innerHTML = '<div class="empty-state">No se pudieron cargar los registros.</div>';
       }
     }
 
-    function renderRegCard(r){
-      const statusClass = 'status-' + r.estado;
-      const statusLabel = r.estado === 'pendiente' ? 'Pendiente' : (r.estado === 'aprobado' ? 'Aprobado' : 'Rechazado');
-
-      return `
-        <div class="reg-card">
-          <div class="reg-top">
-            <div>
-              <div class="reg-name">${escapeHtml(r.nombre)}</div>
-              <div class="reg-meta">${escapeHtml(r.email)}<br>${escapeHtml(r.whatsapp || '')}</div>
-            </div>
-            <span class="status-pill ${statusClass}">${statusLabel}</span>
-          </div>
-          <div class="reg-actions">
-            <button class="mini-btn mini-approve" id="aprobar-${r.id}">Aprobar</button>
-            <button class="mini-btn mini-reject" id="rechazar-${r.id}">Rechazar</button>
-          </div>
-        </div>
-      `;
-    }
-
-    async function cambiarEstado(r, nuevoEstado){
+    window.cambiarEstado = async (id, nuevoEstado) => {
       try{
-        await updateDoc(doc(db, "registros", r.id), { estado: nuevoEstado });
+        await updateDoc(doc(db, "registros", id), { estado: nuevoEstado });
         cargarRegistros();
       }catch(err){
-        console.error('Error:', err);
         alert('No se pudo cambiar el estado.');
       }
-    }
+    };
 
     /* ============================================================
        SALDOS
@@ -359,49 +297,40 @@
         const registros = [];
         snapshot.forEach(docSnap => registros.push({ id: docSnap.id, ...docSnap.data() }));
 
-        listEl.innerHTML = registros.map(r => renderSaldoCard(r)).join('');
-
-        registros.forEach(r => {
-          const btn = document.getElementById('cargar-saldo-' + r.id);
-          if(btn) btn.addEventListener('click', () => cargarSaldo(r));
-        });
+        listEl.innerHTML = registros.map(r => `
+          <div class="reg-card">
+            <div class="reg-top">
+              <div>
+                <div class="reg-name">${escapeHtml(r.nombre)}</div>
+                <div class="reg-meta">Saldo actual: $${(r.saldo || 0).toFixed(2)}</div>
+              </div>
+            </div>
+            <div class="reg-saldo-row">
+              <input type="number" class="saldo-input" id="saldo-input-${r.id}" placeholder="Monto" min="1">
+              <button class="mini-btn mini-saldo" onclick="cargarSaldo('${r.id}')">Cargar</button>
+            </div>
+          </div>
+        `).join('');
       }catch(err){
         console.error('Error:', err);
       }
     }
 
-    function renderSaldoCard(r){
-      return `
-        <div class="reg-card">
-          <div class="reg-top">
-            <div>
-              <div class="reg-name">${escapeHtml(r.nombre)}</div>
-              <div class="reg-meta">Saldo actual: $${(r.saldo || 0).toFixed(2)}</div>
-            </div>
-          </div>
-          <div class="reg-saldo-row">
-            <input type="number" class="saldo-input" id="saldo-input-${r.id}" placeholder="Monto" min="1">
-            <button class="mini-btn mini-saldo" id="cargar-saldo-${r.id}">Cargar</button>
-          </div>
-        </div>
-      `;
-    }
-
-    async function cargarSaldo(r){
-      const input = document.getElementById('saldo-input-' + r.id);
+    window.cargarSaldo = async (id) => {
+      const input = document.getElementById('saldo-input-' + id);
       const monto = parseFloat(input.value);
       if(!monto || monto <= 0){
         alert('Ingresá un monto válido.');
         return;
       }
       try{
-        await updateDoc(doc(db, "registros", r.id), { saldo: increment(monto) });
+        await updateDoc(doc(db, "registros", id), { saldo: increment(monto) });
         input.value = '';
         cargarSaldos();
       }catch(err){
         alert('Error al actualizar saldo.');
       }
-    }
+    };
 
     /* ============================================================
        RECARGAS
@@ -427,9 +356,57 @@
         const pendientes = recargas.filter(r => r.estado === 'pendiente').length;
         tagEl.textContent = pendientes + ' pendiente' + (pendientes === 1 ? '' : 's');
 
-        listEl.innerHTML = recargas.map(r => `<div class="reg-card"><div class="reg-top"><div><strong>${escapeHtml(r.nombre)}</strong><br>$${(r.monto || 0).toFixed(2)} - ${r.metodo || 'desconocido'}</div><span class="status-pill status-${r.estado}">${r.estado}</span></div></div>`).join('');
+        listEl.innerHTML = recargas.map(r => `
+          <div class="reg-card">
+            <div class="reg-top">
+              <div>
+                <strong>${escapeHtml(r.nombre)}</strong><br>$${(r.monto || 0).toFixed(2)} - ${r.metodo || 'desconocido'}
+              </div>
+              <span class="status-pill status-${r.estado}">${r.estado}</span>
+            </div>
+          </div>
+        `).join('');
       }catch(err){
         console.error('Error:', err);
+      }
+    }
+
+    /* ============================================================
+       PRODUCTOS
+       ============================================================ */
+    async function cargarProductos(){
+      const listEl = document.getElementById('admin-prod-list');
+      listEl.innerHTML = '<div class="loading-row">Cargando productos…</div>';
+
+      try{
+        const q = query(collection(db, "productos"), orderBy("nombre"));
+        const snapshot = await getDocs(q);
+
+        if(snapshot.empty){
+          listEl.innerHTML = '<div class="empty-state">No hay productos cargados.</div>';
+          return;
+        }
+
+        const productos = [];
+        snapshot.forEach(docSnap => productos.push({ id: docSnap.id, ...docSnap.data() }));
+
+        listEl.innerHTML = productos.map(p => `
+          <div class="reg-card">
+            <div class="reg-top">
+              <div>
+                <div class="reg-name">${escapeHtml(p.nombre)}</div>
+                <div class="reg-meta">
+                  ${p.categoria ? 'Categoría: ' + escapeHtml(p.categoria) + '<br>' : ''}
+                  Precio: $${(p.precio || 0).toFixed(2)}
+                  ${p.precioSocio ? ' / Socio: $' + (p.precioSocio || 0).toFixed(2) : ''}
+                </div>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }catch(err){
+        console.error('Error al cargar productos:', err);
+        listEl.innerHTML = '<div class="empty-state">Error al cargar productos.</div>';
       }
     }
 
@@ -452,45 +429,38 @@
         const cupones = [];
         snapshot.forEach(docSnap => cupones.push({ id: docSnap.id, ...docSnap.data() }));
 
-        listEl.innerHTML = cupones.map(c => renderCuponCard(c)).join('');
+        const hoy = new Date().toISOString().split('T')[0];
+        listEl.innerHTML = cupones.map(c => {
+          const vencido = c.vencimiento < hoy;
+          const usado = c.usado === true;
+          const estado = vencido ? 'Vencido' : (usado ? 'Usado' : (c.activo === false ? 'Inactivo' : 'Activo'));
+          const estadoColor = vencido || usado ? 'status-rechazado' : (c.activo === false ? 'status-pendiente' : 'status-aprobado');
 
-        cupones.forEach(c => {
-          const btn = document.getElementById('eliminar-cupon-' + c.id);
-          if(btn) btn.addEventListener('click', () => eliminarCupon(c.id));
-        });
+          return `
+            <div class="reg-card">
+              <div class="reg-top">
+                <div>
+                  <div class="reg-name" style="font-family:monospace; font-size:16px;">${escapeHtml(c.codigo)}</div>
+                  <div class="reg-meta">
+                    Descuento: <strong>${c.porcentaje}%</strong><br>
+                    Vencimiento: ${c.vencimiento || 'Sin fecha'}<br>
+                    ${usado ? '✓ <strong>YA FUE USADO</strong>' : 'Disponible'}
+                  </div>
+                </div>
+                <span class="status-pill ${estadoColor}">${estado}</span>
+              </div>
+              <div class="reg-actions">
+                <button class="mini-btn mini-reject" onclick="eliminarCupon('${c.id}')">Eliminar</button>
+              </div>
+            </div>
+          `;
+        }).join('');
       }catch(err){
         console.error('Error:', err);
       }
     }
 
-    function renderCuponCard(c){
-      const hoy = new Date().toISOString().split('T')[0];
-      const vencido = c.vencimiento < hoy;
-      const usado = c.usado === true;
-      const estado = vencido ? 'Vencido' : (usado ? 'Usado' : (c.activo === false ? 'Inactivo' : 'Activo'));
-      const estadoColor = vencido || usado ? 'status-rechazado' : (c.activo === false ? 'status-pendiente' : 'status-aprobado');
-
-      return `
-        <div class="reg-card">
-          <div class="reg-top">
-            <div>
-              <div class="reg-name" style="font-family:monospace; font-size:16px;">${escapeHtml(c.codigo)}</div>
-              <div class="reg-meta">
-                Descuento: <strong>${c.porcentaje}%</strong><br>
-                Vencimiento: ${c.vencimiento || 'Sin fecha'}<br>
-                ${usado ? '✓ <strong>YA FUE USADO</strong>' : 'Disponible'}
-              </div>
-            </div>
-            <span class="status-pill ${estadoColor}">${estado}</span>
-          </div>
-          <div class="reg-actions">
-            <button class="mini-btn mini-reject" id="eliminar-cupon-${c.id}">Eliminar</button>
-          </div>
-        </div>
-      `;
-    }
-
-    async function eliminarCupon(id){
+    window.eliminarCupon = async (id) => {
       if(!confirm('¿Seguro que querés eliminar este cupón?')) return;
       try{
         await deleteDoc(doc(db, "cupones", id));
@@ -498,7 +468,7 @@
       }catch(err){
         alert('No se pudo eliminar.');
       }
-    }
+    };
 
     const cuponSubmitBtn = document.getElementById('cupon-submit-btn');
     const cuponFormError = document.getElementById('cupon-form-error');
@@ -571,7 +541,16 @@
         const compras = [];
         snapshot.forEach(docSnap => compras.push({ id: docSnap.id, ...docSnap.data() }));
 
-        listEl.innerHTML = compras.map(cp => `<div class="reg-card"><div class="reg-top"><div><strong>${escapeHtml(cp.nombre || 'Anónimo')}</strong><br>${escapeHtml(cp.productoNombre || 'Producto')}</div></div></div>`).join('');
+        listEl.innerHTML = compras.map(cp => `
+          <div class="reg-card">
+            <div class="reg-top">
+              <div>
+                <strong>${escapeHtml(cp.nombre || 'Anónimo')}</strong><br>
+                ${escapeHtml(cp.productoNombre || 'Producto')}
+              </div>
+            </div>
+          </div>
+        `).join('');
       }catch(err){
         console.error('Error:', err);
       }
