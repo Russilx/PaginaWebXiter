@@ -1324,7 +1324,7 @@ main.home{
 
 .producto-main{
   display:grid;
-  grid-template-columns:440px 1fr;
+  grid-template-columns:520px 1fr;
   align-items:start;
   gap:36px;
   min-width:0;
@@ -1332,8 +1332,8 @@ main.home{
 
 .producto-image{
   width:100%;
-  max-width:440px;
-  max-height:520px;
+  max-width:520px;
+  max-height:600px;
   border-radius:20px;
   overflow:hidden;
   background:var(--panel-2);
@@ -1346,7 +1346,7 @@ main.home{
   position:relative;
 }
 .producto-image:has(.prod-img-placeholder){ min-height:280px; }
-.producto-image img{ width:100%; height:auto; max-height:520px; display:block; object-fit:contain; }
+.producto-image img{ width:100%; height:auto; max-height:600px; display:block; object-fit:contain; }
 
 .prod-gallery-arrow{
   position:absolute;
@@ -1543,15 +1543,13 @@ main.home{
 .pago-pp{ background:rgba(0,112,186,0.14); color:#4f9eea; }
 .pago-bn{ background:rgba(240,185,11,0.14); color:#f0b90b; }
 
-@media (max-width:900px){
+@media (max-width:820px){
   .producto-layout{ grid-template-columns:1fr; }
   .producto-sidebar{ flex-direction:row; flex-wrap:wrap; }
-  .info-bubble{ flex:1 1 220px; }
-}
-@media (max-width:820px){
+  .producto-sidebar .info-bubble{ flex:1 1 220px; }
   .producto-main{ grid-template-columns:1fr; }
   .producto-image{
-    width:65%; max-width:260px; max-height:none; margin:0 auto 16px;
+    width:80%; max-width:340px; max-height:none; margin:0 auto 16px;
     display:flex; align-items:center; justify-content:center;
   }
   .producto-image img{ position:static; height:auto; max-height:none; }
