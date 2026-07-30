@@ -1545,93 +1545,53 @@ main.home{
 }
 @media (max-width:820px){
   .producto-layout{
-    display:flex;
-    flex-direction:column;
-    gap:24px;
-    align-items:stretch;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 24px;
+    width: 100% !important;
+    max-width: 100% !important;
   }
   .producto-main{
-    display:flex;
-    flex-direction:column;
-    gap:20px;
-    align-items:center;
-    width:100%;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    grid-template-columns: 1fr !important;
+    gap: 20px;
   }
   .producto-image{
-    width:100%;
-    max-width:100%;
-    max-height:none;
-    margin:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
   }
   .producto-image img{
-    position:static;
-    height:auto;
-    max-height:none;
-    width:100%;
+    width: 100% !important;
+    height: auto !important;
   }
   .producto-info{
-    width:100%;
-    text-align:left;
-  }
-  .producto-desc-block{
-    width:100%;
-    margin-top:0;
-    padding-top:0;
-    border-top:none;
+    width: 100% !important;
   }
   .producto-sidebar{
-    flex-direction:column;
-    width:100%;
-    gap:16px;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 16px;
   }
   .info-bubble{
-    flex:none;
+    width: 100% !important;
+    flex: none !important;
   }
 }
 @media (max-width:520px){
   .producto-layout{
-    display:flex;
-    flex-direction:column;
-    gap:20px;
-    align-items:stretch;
+    gap: 16px !important;
   }
   .producto-main{
-    display:flex;
-    flex-direction:column;
-    gap:16px;
-    align-items:center;
-    width:100%;
-  }
-  .producto-image{
-    width:100%;
-    max-width:100%;
-    max-height:none;
-    margin:0;
-  }
-  .producto-image img{
-    width:100%;
-    height:auto;
-  }
-  .producto-info{
-    width:100%;
-    text-align:left;
-  }
-  .producto-desc-block{
-    width:100%;
-    margin-top:0;
-    padding-top:0;
-    border-top:none;
+    gap: 12px !important;
   }
   .producto-sidebar{
-    flex-direction:column;
-    width:100%;
-    gap:12px;
-  }
-  .info-bubble{
-    flex:none;
+    gap: 10px !important;
   }
 }
 /* ---------- footer de contacto (fijo al final de cada página) ---------- */
