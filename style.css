@@ -1324,7 +1324,7 @@ main.home{
 
 .producto-main{
   display:grid;
-  grid-template-columns:520px 1fr;
+  grid-template-columns:440px 1fr;
   align-items:start;
   gap:36px;
   min-width:0;
@@ -1332,8 +1332,8 @@ main.home{
 
 .producto-image{
   width:100%;
-  max-width:520px;
-  max-height:600px;
+  max-width:440px;
+  max-height:520px;
   border-radius:20px;
   overflow:hidden;
   background:var(--panel-2);
@@ -1346,7 +1346,7 @@ main.home{
   position:relative;
 }
 .producto-image:has(.prod-img-placeholder){ min-height:280px; }
-.producto-image img{ width:100%; height:auto; max-height:600px; display:block; object-fit:contain; }
+.producto-image img{ width:100%; height:auto; max-height:520px; display:block; object-fit:contain; }
 
 .prod-gallery-arrow{
   position:absolute;
@@ -1387,11 +1387,6 @@ main.home{
 
 .producto-info{
   min-width:0;
-}
-
-.producto-desc-block{
-  grid-column:1 / -1;
-  width:100%;
 }
 
 .producto-nombre{
@@ -1483,6 +1478,8 @@ main.home{
   margin-top:16px;
   padding-top:18px;
   border-top:1px solid rgba(255,255,255,0.08);
+  grid-column:1 / -1;
+  width:100%;
 }
 .producto-desc-block h2{
   font-family:'Anton', sans-serif;
@@ -1543,19 +1540,41 @@ main.home{
 .pago-pp{ background:rgba(0,112,186,0.14); color:#4f9eea; }
 .pago-bn{ background:rgba(240,185,11,0.14); color:#f0b90b; }
 
-@media (max-width:820px){
+@media (max-width:900px){
   .producto-layout{ grid-template-columns:1fr; }
   .producto-sidebar{ flex-direction:row; flex-wrap:wrap; }
-  .producto-sidebar .info-bubble{ flex:1 1 220px; }
+  .info-bubble{ flex:1 1 220px; }
+}
+@media (max-width:820px){
   .producto-main{ grid-template-columns:1fr; }
   .producto-image{
-    width:80%; max-width:340px; max-height:none; margin:0 auto 16px;
+    width:100%; max-width:100%; max-height:none; margin:0 auto 16px;
     display:flex; align-items:center; justify-content:center;
   }
   .producto-image img{ position:static; height:auto; max-height:none; }
 }
 @media (max-width:520px){
-  .producto-sidebar{ flex-direction:column; }
+  .producto-layout{
+    display:grid;
+    grid-template-columns:1fr;
+    grid-template-rows:auto auto auto auto;
+  }
+  .producto-main{
+    grid-column:1;
+    grid-row:1;
+    order:1;
+  }
+  .producto-desc-block{
+    grid-column:1;
+    grid-row:2;
+    order:2;
+  }
+  .producto-sidebar{
+    flex-direction:column;
+    grid-column:1;
+    grid-row:3;
+    order:3;
+  }
 }
 /* ---------- footer de contacto (fijo al final de cada página) ---------- */
 .site-footer{
