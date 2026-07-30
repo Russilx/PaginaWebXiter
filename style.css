@@ -1549,21 +1549,18 @@ main.home{
 
 @media (max-width:820px){
   .producto-layout{ flex-direction:column; align-items:stretch; }
-  .producto-main{ width:100%; }
+  .producto-main{ width:100%; flex-direction:column; align-items:stretch; min-width:0; }
   .producto-sidebar{ width:100%; flex-direction:row; flex-wrap:wrap; }
   .info-bubble{ flex:1 1 220px; }
-}
-@media (max-width:520px){
-  .producto-sidebar{ flex-direction:column; }
-}
-@media (max-width:600px){
-  .producto-main{ flex-direction:column; align-items:stretch; min-width:0; }
   .producto-image{
     width:65%; max-width:260px; max-height:none; margin:0 auto 16px; flex:0 0 auto;
     display:flex; align-items:center; justify-content:center;
   }
   .producto-image img{ position:static; height:auto; max-height:none; }
   .producto-info, .producto-desc-block{ width:100%; min-width:0; max-width:100%; flex:1 1 auto; }
+}
+@media (max-width:520px){
+  .producto-sidebar{ flex-direction:column; }
 }
 /* ---------- footer de contacto (fijo al final de cada página) ---------- */
 .site-footer{
