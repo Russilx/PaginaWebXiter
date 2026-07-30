@@ -1549,7 +1549,7 @@ main.home{
 }
 @media (max-width:600px){
   .producto-main{ flex-direction:column; align-items:stretch; min-width:0; }
-  .producto-image{ width:100%; flex:1 1 auto; margin-bottom:6px; }
+  .producto-image{ width:65%; max-width:260px; margin:0 auto 16px; flex:0 0 auto; }
   .producto-info, .producto-desc-block{ width:100%; min-width:0; max-width:100%; flex:1 1 auto; }
 }
 /* ---------- footer de contacto (fijo al final de cada página) ---------- */
