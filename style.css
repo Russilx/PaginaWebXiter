@@ -1548,14 +1548,15 @@ main.home{
 }
 @media (max-width:820px){
   body::after{
-    width: 100px !important;
-    height: 100px !important;
-    top: 40px !important;
-    opacity: 0.6 !important;
+    width: 80px !important;
+    height: 80px !important;
+    top: 30px !important;
+    opacity: 0.3 !important;
+    z-index: -1 !important;
     box-shadow:
-      0 0 20px 5px rgba(225,6,0,0.4),
-      0 0 50px 20px rgba(225,6,0,0.2),
-      0 0 100px 40px rgba(225,6,0,0.1) !important;
+      0 0 15px 5px rgba(225,6,0,0.3),
+      0 0 30px 15px rgba(225,6,0,0.15),
+      0 0 60px 30px rgba(225,6,0,0.05) !important;
   }
   .producto-layout{
     display: flex !important;
