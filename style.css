@@ -1548,9 +1548,9 @@ main.home{
   .producto-sidebar{ flex-direction:column; }
 }
 @media (max-width:600px){
-  .producto-main{ flex-direction:column; align-items:stretch; }
+  .producto-main{ flex-direction:column; align-items:stretch; min-width:0; }
   .producto-image{ width:100%; flex:1 1 auto; margin-bottom:6px; }
-  .producto-info, .producto-desc-block{ width:100%; }
+  .producto-info, .producto-desc-block{ width:100%; min-width:0; max-width:100%; flex:1 1 auto; }
 }
 /* ---------- footer de contacto (fijo al final de cada página) ---------- */
 .site-footer{
