@@ -389,6 +389,18 @@
                 </button>
               </div>
             </div>
+            <div class="tb-row">
+              <div class="field">
+                <label for="tb-max-tickets">Máximo de tickets activos por usuario</label>
+                <input id="tb-max-tickets" type="number" min="0" step="1" placeholder="Ej: 1">
+                <span class="tb-note">Cuántos tickets puede tener abiertos a la vez la misma persona en este servidor. Dejalo en 0 para no poner límite.</span>
+              </div>
+              <div class="field">
+                <label for="tb-cierre-inactividad">Cierre automático por inactividad (minutos)</label>
+                <input id="tb-cierre-inactividad" type="number" min="0" step="1" placeholder="Ej: 60">
+                <span class="tb-note">Si nadie escribe en el ticket durante estos minutos, el bot avisa y lo cierra solo unos minutos después. Dejalo en 0 para desactivarlo.</span>
+              </div>
+            </div>
           </div>
 
           <!-- MENSAJE DEL PANEL -->
@@ -495,9 +507,23 @@
                 Ver variables disponibles
               </button>
             </div>
+            <div class="tb-row">
+              <div class="field">
+                <label for="tb-cerrar-texto">Texto del botón para cerrar el ticket (staff)</label>
+                <input id="tb-cerrar-texto" type="text" placeholder="Ej: Cerrar ticket">
+              </div>
+              <div class="field">
+                <label for="tb-salir-texto">Texto del botón "Salir" (lo usa quien abrió el ticket)</label>
+                <input id="tb-salir-texto" type="text" placeholder="Ej: Salir">
+              </div>
+            </div>
             <div class="field">
-              <label for="tb-cerrar-texto">Texto del botón para cerrar el ticket</label>
-              <input id="tb-cerrar-texto" type="text" placeholder="Ej: Cerrar ticket">
+              <label for="tb-pedir-calificacion">Pedir calificación al salir</label>
+              <select id="tb-pedir-calificacion">
+                <option value="no">No</option>
+                <option value="si">Sí, pedir que califique de 1 a 5 antes de cerrar</option>
+              </select>
+              <span class="tb-note">Solo aplica cuando el cliente toca "Salir" (no cuando el staff toca "Cerrar ticket"). La calificación queda guardada en Firestore, en la colección "calificaciones".</span>
             </div>
           </div>
 
@@ -1811,6 +1837,8 @@
       categoriaId: tbEl('tb-categoria-id'),
       rolStaffId: tbEl('tb-rol-staff'),
       nombreCanal: tbEl('tb-nombre-canal'),
+      maxTicketsActivos: tbEl('tb-max-tickets'),
+      cierreInactividadMinutos: tbEl('tb-cierre-inactividad'),
       panelTitulo: tbEl('tb-panel-titulo'),
       panelDescripcion: tbEl('tb-panel-desc'),
       panelColorHex: tbEl('tb-panel-color-hex'),
@@ -1823,6 +1851,8 @@
       bienvenidaTitulo: tbEl('tb-bienvenida-titulo'),
       bienvenidaDescripcion: tbEl('tb-bienvenida-desc'),
       cerrarTexto: tbEl('tb-cerrar-texto'),
+      salirTexto: tbEl('tb-salir-texto'),
+      pedirCalificacion: tbEl('tb-pedir-calificacion'),
     };
     const tbColorPicker = tbEl('tb-panel-color');
 
@@ -1832,6 +1862,8 @@
       categoriaId: '',
       rolStaffId: '',
       nombreCanal: 'ticket-{usuario}',
+      maxTicketsActivos: '1',
+      cierreInactividadMinutos: '0',
       panelTitulo: 'Soporte XITERKING STORE',
       panelDescripcion: 'Tocá el botón de abajo para abrir un ticket privado con el equipo de soporte.',
       panelColorHex: '#e10600',
@@ -1845,6 +1877,8 @@
       bienvenidaTitulo: '¡Gracias por tu consulta!',
       bienvenidaDescripcion: 'Hola {usuario}, en breve un miembro del equipo te va a responder. Contanos qué necesitás.',
       cerrarTexto: 'Cerrar ticket',
+      salirTexto: 'Salir',
+      pedirCalificacion: 'no',
     };
 
     let tbConfigCargada = false;
