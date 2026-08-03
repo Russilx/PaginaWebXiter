@@ -3,140 +3,177 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Crear cuenta — XITERKING STORE</title>
+<title>Bot de Tickets — XITERKING STORE</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=10">
 </head>
-<body>
+<body class="login-page">
 
   <div class="topbar">
     <a class="back-btn" href="index.html">← Volver</a>
     <span class="brandmark">XITERKING</span>
   </div>
 
-  <div class="page-wrap">
-    <div class="card">
-      <div id="registro-form-wrap">
-        <h2 id="reg-titulo">Crear <span>cuenta</span></h2>
-        <p class="sub" id="reg-subtitulo">Completá tus datos. Vas a poder ingresar apenas te aprobemos el acceso.</p>
+  <div class="login-split">
 
-        <div class="field">
-          <label for="reg-nombre">Nombre completo</label>
-          <input id="reg-nombre" type="text" placeholder="Ej: Juan Pérez">
-        </div>
-        <div class="field">
-          <label for="reg-email">Email</label>
-          <input id="reg-email" type="email" placeholder="tuemail@ejemplo.com">
-        </div>
-        <div class="field">
-          <label for="reg-whatsapp">WhatsApp / Teléfono</label>
-          <input id="reg-whatsapp" type="text" placeholder="+54 9 11 1234 5678">
-        </div>
-        <div class="field">
-          <label for="reg-pass">Contraseña</label>
-          <input id="reg-pass" type="password" placeholder="Mínimo 6 caracteres">
-        </div>
-
-        <div class="form-error" id="reg-error"></div>
-
-        <button class="btn btn-primary" style="width:100%;" id="reg-submit-btn">Enviar registro</button>
-
-        <div class="alt-link">¿Ya tenés cuenta aprobada? <a href="login.html" id="reg-login-link">Iniciá sesión</a></div>
+    <div class="login-promo">
+      <div class="promo-brand">
+        <img class="brand-logo" src="logo.png" alt="Logo XITERKING STORE">
+        <span class="promo-brand-name">XITERKING STORE</span>
       </div>
+      <p class="promo-tagline">Soporte por Discord, directo y sin esperas: así funciona nuestro Bot de Tickets</p>
 
-      <div id="registro-success" class="success-box" style="display:none;">
-        <div class="icon">✓</div>
-        <h3>¡Listo, te registraste!</h3>
-        <p id="reg-success-texto">Tu cuenta quedó <strong>pendiente de aprobación</strong>. En cuanto el administrador la revise y te autorice, vas a poder ingresar. Te avisamos por WhatsApp o email.</p>
-        <a class="btn btn-secondary" style="width:100%; display:block; text-align:center;" id="reg-success-btn" href="index.html">Volver al inicio</a>
+      <div class="promo-bubbles">
+        <div class="promo-bubble">
+          <span class="promo-bubble-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 5h16a1 1 0 0 1 1 1v3a2 2 0 0 0 0 6v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3a2 2 0 0 0 0-6V6a1 1 0 0 1 1-1z"/>
+              <line x1="14" y1="5" x2="14" y2="19" stroke-dasharray="2 3"/>
+            </svg>
+          </span>
+          <span>Ticket privado al instante, solo para vos y el staff</span>
+        </div>
+        <div class="promo-bubble">
+          <span class="promo-bubble-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 7v5l3.5 2"/>
+            </svg>
+          </span>
+          <span>Atención automática las 24 horas, todos los días</span>
+        </div>
+        <div class="promo-bubble">
+          <span class="promo-bubble-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="11" width="14" height="9" rx="2"/>
+              <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+            </svg>
+          </span>
+          <span>Conversación cerrada y protegida hasta que se resuelve</span>
+        </div>
       </div>
     </div>
+
+    <div class="login-form-side">
+      <div class="card">
+        <div id="login-form-wrap">
+          <h2>Iniciar <span>sesión</span></h2>
+          <p class="sub">Ingresá con el email y la contraseña que usaste al registrarte para configurar tu propio bot de tickets.</p>
+
+          <div class="field">
+            <label for="login-email">Email</label>
+            <input id="login-email" type="email" placeholder="tuemail@ejemplo.com">
+          </div>
+          <div class="field">
+            <label for="login-pass">Contraseña</label>
+            <input id="login-pass" type="password" placeholder="Tu contraseña">
+          </div>
+
+          <div class="form-error" id="login-error"></div>
+
+          <button class="btn btn-primary" style="width:100%;" id="login-btn">Iniciar sesión</button>
+
+          <div class="alt-link">¿Todavía no tenés cuenta? <a href="registro.html?origen=bot">Registrate</a></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script type="module">
     import { firebaseConfig } from './firebase-config.js';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp }
+    import { getFirestore, collection, query, where, getDocs }
       from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    /* ---------- origen del registro: "tienda" (login.html) o "bot" (ticketbot.html) ---------- */
-    const params = new URLSearchParams(window.location.search);
-    const origen = params.get('origen') === 'bot' ? 'bot' : 'tienda';
-
-    if(origen === 'bot'){
-      document.getElementById('reg-titulo').innerHTML = 'Crear cuenta <span>del Bot de Tickets</span>';
-      document.getElementById('reg-subtitulo').textContent = 'Esta cuenta es solo para configurar tu propio bot de tickets en mibot.html, no incluye los beneficios de la tienda.';
-      document.getElementById('reg-login-link').textContent = 'Iniciá sesión';
-      document.getElementById('reg-login-link').href = 'ticketbot.html';
-      document.getElementById('reg-success-texto').innerHTML = 'Tu cuenta quedó <strong>pendiente de aprobación</strong>. En cuanto el administrador la autorice, vas a poder ingresar en la página del bot y configurar tu servidor de Discord.';
-      document.getElementById('reg-success-btn').textContent = 'Ir a iniciar sesión del bot';
-      document.getElementById('reg-success-btn').href = 'ticketbot.html';
-    }
-
-    // hash simple del lado del cliente para no guardar la contraseña en texto plano.
-    // Esto NO reemplaza un sistema de autenticación real (como Firebase Auth),
-    // pero evita que la contraseña quede legible tal cual en la base de datos.
+    // mismo hash simple que usa registro.html, para poder comparar
+    // contra lo guardado en Firestore.
     async function hashPassword(texto){
       const codificado = new TextEncoder().encode(texto);
       const hashBuffer = await crypto.subtle.digest('SHA-256', codificado);
       return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2,'0')).join('');
     }
 
-    const btn = document.getElementById('reg-submit-btn');
-    const errorEl = document.getElementById('reg-error');
+    const btn = document.getElementById('login-btn');
+    const errorEl = document.getElementById('login-error');
 
     btn.addEventListener('click', async () => {
-      const nombre = document.getElementById('reg-nombre').value.trim();
-      const email = document.getElementById('reg-email').value.trim();
-      const whatsapp = document.getElementById('reg-whatsapp').value.trim();
-      const pass = document.getElementById('reg-pass').value;
+      const email = document.getElementById('login-email').value.trim();
+      const pass = document.getElementById('login-pass').value;
 
       errorEl.textContent = '';
 
-      if(!nombre || !email || !whatsapp || !pass){
-        errorEl.textContent = 'Completá todos los campos.';
-        return;
-      }
-      if(!email.includes('@') || !email.includes('.')){
-        errorEl.textContent = 'Ingresá un email válido.';
-        return;
-      }
-      if(pass.length < 6){
-        errorEl.textContent = 'La contraseña debe tener al menos 6 caracteres.';
+      if(!email || !pass){
+        errorEl.textContent = 'Completá email y contraseña.';
         return;
       }
 
       btn.disabled = true;
-      btn.textContent = 'Enviando…';
+      btn.textContent = 'Ingresando…';
 
       try{
+        const q = query(collection(db, "registros"), where("email", "==", email));
+        const snapshot = await getDocs(q);
+
+        if(snapshot.empty){
+          errorEl.textContent = 'No existe una cuenta con ese email.';
+          resetBtn();
+          return;
+        }
+
+        const regDoc = snapshot.docs[0];
+        const registro = regDoc.data();
+
+        // las cuentas creadas desde login.html son de la tienda (saldo,
+        // descuentos, etc), acá solo entran cuentas hechas para el bot.
+        if(registro.tipo === 'tienda'){
+          errorEl.textContent = 'Esa cuenta es de la tienda. Iniciá sesión en login.html.';
+          resetBtn();
+          return;
+        }
+
+        if(registro.estado === 'pendiente'){
+          errorEl.textContent = 'Tu cuenta todavía está pendiente de aprobación.';
+          resetBtn();
+          return;
+        }
+        if(registro.estado === 'rechazado'){
+          errorEl.textContent = 'Tu solicitud de cuenta no fue aprobada.';
+          resetBtn();
+          return;
+        }
+
         const passHash = await hashPassword(pass);
+        if(passHash !== registro.passHash){
+          errorEl.textContent = 'Contraseña incorrecta.';
+          resetBtn();
+          return;
+        }
 
-        await addDoc(collection(db, "registros"), {
-          nombre,
-          email,
-          whatsapp,
-          passHash,
-          tipo: origen, // "tienda" (login.html) o "bot" (ticketbot.html)
-          estado: 'pendiente',
-          saldo: 0,
-          fecha: serverTimestamp()
-        });
+        sessionStorage.setItem('xiterking_user', JSON.stringify({
+          id: regDoc.id,
+          nombre: registro.nombre,
+          email: registro.email,
+          saldo: registro.saldo || 0
+        }));
 
-        document.getElementById('registro-form-wrap').style.display = 'none';
-        document.getElementById('registro-success').style.display = 'block';
+        window.location.href = 'mibot.html';
       }catch(err){
-        console.error('Error al registrar:', err);
-        errorEl.textContent = 'Hubo un problema al enviar el registro. Revisá la configuración de Firebase o probá de nuevo.';
-        btn.disabled = false;
-        btn.textContent = 'Enviar registro';
+        console.error('Error al iniciar sesión:', err);
+        errorEl.textContent = 'Hubo un problema al iniciar sesión. Probá de nuevo.';
+        resetBtn();
       }
     });
+
+    function resetBtn(){
+      btn.disabled = false;
+      btn.textContent = 'Iniciar sesión';
+    }
   </script>
   <!-- FOOTER DE CONTACTO -->
   <footer class="site-footer">

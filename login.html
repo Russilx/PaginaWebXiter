@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=9">
+<link rel="stylesheet" href="style.css?v=10">
 </head>
 <body class="login-page">
 
@@ -79,7 +79,7 @@
 
           <button class="btn btn-primary" style="width:100%;" id="login-btn">Iniciar sesión</button>
 
-          <div class="alt-link">¿Todavía no tenés cuenta? <a href="registro.html">Registrate</a></div>
+          <div class="alt-link">¿Todavía no tenés cuenta? <a href="registro.html?origen=tienda">Registrate</a></div>
           <div class="admin-link">
             <a href="admin.html">Panel de administración</a>
           </div>
@@ -142,6 +142,14 @@
 
         const regDoc = snapshot.docs[0];
         const registro = regDoc.data();
+
+        // las cuentas creadas desde ticketbot.html son solo para el bot,
+        // no tienen los beneficios de la tienda (saldo, descuentos, etc).
+        if(registro.tipo === 'bot'){
+          errorEl.textContent = 'Esa cuenta es del Bot de Tickets. Iniciá sesión en ticketbot.html.';
+          resetBtn();
+          return;
+        }
 
         if(registro.estado === 'pendiente'){
           errorEl.textContent = 'Tu cuenta todavía está pendiente de aprobación.';

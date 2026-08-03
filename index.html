@@ -11,17 +11,34 @@
 </head>
 <body>
 
+  <!-- NAVEGACIÓN LATERAL IZQUIERDA (se abre con el botón de hamburguesa) -->
+  <div class="side-nav-backdrop" id="side-nav-backdrop"></div>
+  <nav class="side-nav" id="side-nav" aria-label="Navegación lateral">
+    <div class="side-nav-head">
+      <span class="side-nav-title">Navegación</span>
+      <button class="side-nav-close" id="side-nav-close" aria-label="Cerrar navegación">✕</button>
+    </div>
+    <div class="side-nav-body" id="side-nav-body">
+      <div class="loading-row">Cargando…</div>
+    </div>
+  </nav>
+
   <header class="topbar topbar-main">
-    <a class="brand-block" href="index.html">
-      <img class="brand-logo" src="logo.png" alt="Logo XITERKING STORE">
-      <span class="brand-name">
-        XITERKING STORE
-        <svg class="verified-badge" viewBox="0 0 22 22" aria-label="Cuenta verificada">
-          <path d="M11 0l2.2 2.1 3-.6 1 2.9 2.9 1-.6 3L21.6 11l-2.1 2.2.6 3-2.9 1-1 2.9-3-.6L11 22l-2.2-2.1-3 .6-1-2.9-2.9-1 .6-3L.4 11l2.1-2.2-.6-3 2.9-1 1-2.9 3 .6z" fill="#e10600"/>
-          <path d="M7 11.2l2.6 2.6L15 8.4" stroke="#fff" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </span>
-    </a>
+    <div class="topbar-brand-row">
+      <button class="hamburger-btn" id="hamburger-btn" aria-label="Abrir navegación" aria-expanded="false" aria-controls="side-nav">
+        <span></span><span></span><span></span>
+      </button>
+      <a class="brand-block" href="index.html">
+        <img class="brand-logo" src="logo.png" alt="Logo XITERKING STORE">
+        <span class="brand-name">
+          XITERKING STORE
+          <svg class="verified-badge" viewBox="0 0 22 22" aria-label="Cuenta verificada">
+            <path d="M11 0l2.2 2.1 3-.6 1 2.9 2.9 1-.6 3L21.6 11l-2.1 2.2.6 3-2.9 1-1 2.9-3-.6L11 22l-2.2-2.1-3 .6-1-2.9-2.9-1 .6-3L.4 11l2.1-2.2-.6-3 2.9-1 1-2.9 3 .6z" fill="#e10600"/>
+            <path d="M7 11.2l2.6 2.6L15 8.4" stroke="#fff" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </a>
+    </div>
 
     <div class="topbar-search">
       <svg class="search-icon" viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35m0 0a7 7 0 1 0-9.9-9.9 7 7 0 0 0 9.9 9.9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -31,6 +48,37 @@
 
     <div class="topbar-account" id="topbar-account"></div>
   </header>
+
+  <script>
+    (function(){
+      const sideNav = document.getElementById('side-nav');
+      const backdrop = document.getElementById('side-nav-backdrop');
+      const hamburgerBtn = document.getElementById('hamburger-btn');
+      const closeBtn = document.getElementById('side-nav-close');
+
+      function abrirNav(){
+        sideNav.classList.add('open');
+        backdrop.classList.add('open');
+        hamburgerBtn.classList.add('active');
+        hamburgerBtn.setAttribute('aria-expanded', 'true');
+      }
+      function cerrarNav(){
+        sideNav.classList.remove('open');
+        backdrop.classList.remove('open');
+        hamburgerBtn.classList.remove('active');
+        hamburgerBtn.setAttribute('aria-expanded', 'false');
+      }
+
+      hamburgerBtn.addEventListener('click', () => {
+        sideNav.classList.contains('open') ? cerrarNav() : abrirNav();
+      });
+      closeBtn.addEventListener('click', cerrarNav);
+      backdrop.addEventListener('click', cerrarNav);
+      document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape') cerrarNav();
+      });
+    })();
+  </script>
 
   <main class="home">
     <div class="hero-lockup">
@@ -1249,8 +1297,53 @@
       }).join('');
     }
 
+    /* ---------- panel de navegación lateral (ítems cargados desde el admin) ---------- */
+    const ICONO_NAV_DEFAULT = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 8.5V6a1.5 1.5 0 0 1 1.5-1.5h15A1.5 1.5 0 0 1 21 6v2.5a2 2 0 0 0 0 3.5V14a2 2 0 0 0 0 3.5V20a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 20v-2.5a2 2 0 0 0 0-3.5v-2a2 2 0 0 0 0-3.5z"/>
+        <path d="M9.5 4.5v15" stroke-dasharray="2.5 2.5"/>
+      </svg>`;
+
+    async function cargarSideNav(){
+      const el = document.getElementById('side-nav-body');
+      try{
+        const q = query(collection(db, "navItems"), orderBy("orden", "asc"));
+        const snapshot = await getDocs(q);
+
+        const items = [];
+        snapshot.forEach(d => items.push({ id: d.id, ...d.data() }));
+        const visibles = items.filter(it => it.activo !== false);
+
+        if(!visibles.length){
+          el.innerHTML = '<div class="empty-state">Todavía no hay ítems cargados.</div>';
+          return;
+        }
+
+        el.innerHTML = visibles.map(it => {
+          const link = it.link || '#';
+          const externo = /^https?:\/\//i.test(link);
+          return `
+            <a class="side-nav-item" href="${escapeHtml(link)}"${externo ? ' target="_blank" rel="noopener"' : ''}>
+              <span class="side-nav-icon">${ICONO_NAV_DEFAULT}</span>
+              <span class="side-nav-text">
+                <span class="side-nav-label">${escapeHtml(it.label || '')}</span>
+                ${it.subtitulo ? `<span class="side-nav-sub">${escapeHtml(it.subtitulo)}</span>` : ''}
+              </span>
+              <span class="side-nav-arrow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+              </span>
+            </a>
+          `;
+        }).join('');
+      }catch(err){
+        console.error('Error al cargar el panel de navegación:', err);
+        el.innerHTML = '<div class="empty-state">No se pudo cargar la navegación.</div>';
+      }
+    }
+
     pintarCuenta();
     cargarCatalogo();
+    cargarSideNav();
     refrescarSaldo();
     cargarTopCompradores();
     mostrarPromoSocio();
