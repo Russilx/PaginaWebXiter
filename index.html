@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script type="module" src="mantenimiento-check.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>XITERKING STORE</title>
@@ -96,18 +97,22 @@
       <span>Miles de clientes contentos</span>
     </p>
 
-    <div class="stats">
+    <div class="stats" id="home-stats">
       <div class="bubble">
         <span class="num" id="product-count">0</span>
         <span class="label">Productos disponibles</span>
       </div>
       <div class="bubble">
-        <span class="num">1000+</span>
+        <span class="num" id="stat-clientes" data-target="1000" data-suffix="+">0</span>
         <span class="label">Clientes</span>
       </div>
       <div class="bubble">
-        <span class="num">24/7</span>
+        <span class="num" id="stat-disponible" data-target="24" data-suffix="/7">0</span>
         <span class="label">Disponible</span>
+      </div>
+      <div class="bubble">
+        <span class="num" id="stat-resenas" data-target="500" data-suffix="+">0</span>
+        <span class="label">Reseñas</span>
       </div>
     </div>
 
@@ -116,6 +121,44 @@
       <a class="btn btn-secondary" href="login.html">Iniciar sesión</a>
     </div>
   </main>
+
+  <script>
+    /* ---------- contador animado para "Clientes" y "Disponible": suben rápido de a poco apenas se ven ---------- */
+    (function(){
+      function contarNumero(el){
+        const target = parseInt(el.dataset.target, 10) || 0;
+        const suffix = el.dataset.suffix || '';
+        let actual = 0;
+        const paso = Math.max(1, Math.ceil(target / 25)); // ~25 pasos, rápido
+        el.textContent = '0' + suffix;
+        const intervalo = setInterval(() => {
+          actual += paso;
+          if(actual >= target){ actual = target; clearInterval(intervalo); }
+          el.textContent = actual + suffix;
+        }, 20);
+      }
+
+      const statsEl = document.getElementById('home-stats');
+      if(!statsEl) return;
+      const numeros = statsEl.querySelectorAll('.num[data-target]');
+      let yaAnimado = false;
+
+      function disparar(){
+        if(yaAnimado) return;
+        yaAnimado = true;
+        numeros.forEach(contarNumero);
+      }
+
+      if('IntersectionObserver' in window){
+        const obs = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => { if(entry.isIntersecting) disparar(); });
+        }, { threshold: 0.3 });
+        obs.observe(statsEl);
+      }else{
+        disparar();
+      }
+    })();
+  </script>
 
   <!-- CATALOGO -->
   <section class="catalogo-wrap">
@@ -126,6 +169,63 @@
     <div id="categoria-filtros" class="categoria-filtros"></div>
     <div id="catalogo-grid" class="catalogo-grid">
       <div class="loading-row">Cargando productos…</div>
+    </div>
+  </section>
+
+  <!-- SOBRE NOSOTROS -->
+  <section class="about-wrap">
+    <div class="about-grid">
+      <div class="about-left">
+        <span class="about-badge">🔥 Sobre nosotros</span>
+        <h2 class="about-title">XITERKING, <span>LO MEJOR DE LO MEJOR</span></h2>
+        <p class="about-desc">
+          En XITERKING STORE nos especializamos en ofrecerte los mejores suscripciones y 
+          licencia para gaming y software. Pago seguro, entrega al instante y un equipo 
+          real detrás de cada compra. garantizamos la mejor experiencia.
+        </p>
+      </div>
+
+      <div class="about-right">
+        <div class="about-card">
+          <span class="about-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>
+          </span>
+          <div>
+            <h3>Entrega al instante</h3>
+            <p>Apenas se acredita el pago, tu producto queda disponible. Sin esperas.</p>
+          </div>
+        </div>
+
+        <div class="about-card">
+          <span class="about-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          </span>
+          <div>
+            <h3>Pagás como quieras</h3>
+            <p>Transferencia, PayPal o Binance. Tu saldo queda cargado al toque.</p>
+          </div>
+        </div>
+
+        <div class="about-card">
+          <span class="about-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.5 0 10-4 10-9s-4.5-9-10-9-10 4-10 9c0 2 1 4 2.5 5.5L4 22l4.5-1.5C9.6 21 10.8 22 12 22z"/></svg>
+          </span>
+          <div>
+            <h3>Soporte por Discord</h3>
+            <p>Ticket privado con el staff cuando lo necesites, todos los días.</p>
+          </div>
+        </div>
+
+        <div class="about-card">
+          <span class="about-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="9" r="3.2"/><path d="M2.5 20c.5-3.4 2.9-5.5 5.5-5.5s5 2.1 5.5 5.5"/><circle cx="17" cy="8" r="2.6"/><path d="M14.7 14.6c2.3.2 4.2 2.2 4.6 5.4"/></svg>
+          </span>
+          <div>
+            <h3>Comunidad real</h3>
+            <p>Miles de clientes ya compraron y pelean su lugar en el ranking.</p>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -358,7 +458,7 @@
   </div>
 
   <script type="module">
-    import { firebaseConfig, DATOS_RECARGA, TASAS_RECARGA, WHATSAPP_RECARGAS, DISCORD_INVITE } from './firebase-config.js';
+    import { firebaseConfig, DATOS_RECARGA, TASAS_RECARGA, WHATSAPP_RECARGAS, DISCORD_INVITE, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID } from './firebase-config.js';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
     import { getFirestore, collection, getDocs, addDoc, query, where, orderBy, doc, getDoc, runTransaction, serverTimestamp }
       from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
@@ -459,6 +559,20 @@
         if(actual >= total){ actual = total; clearInterval(intervalo); }
         el.textContent = actual;
       }, 25);
+    }
+
+    /* ---------- aviso automático a vos por Telegram: se acabaron las keys ---------- */
+    async function avisarTelegramSinStock(nombreProducto){
+      try{
+        const texto = `⚠️ Se quedó sin keys: "${nombreProducto}". Rellená el stock cuando puedas.`;
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: texto })
+        });
+      }catch(err){
+        console.error('Error al avisar por Telegram que se acabó el stock:', err);
+      }
     }
 
     /* ---------- cartel / modal ---------- */
@@ -810,6 +924,11 @@
                 <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
                 Agregar al carrito
               </button>` : ''}
+              ${sinStockPorKeys ? `
+              <a class="prod-avisame-btn" href="https://wa.me/${WHATSAPP_RECARGAS}?text=${encodeURIComponent(`Hola! Se agotaron las keys de "${p.nombre}" (${window.location.origin}/producto.html?id=${p.id}), avisame cuando repongas.`)}" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.8-1.9-.9-.3-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.3-.1-1.1-.4-2.1-1.3-.8-.7-1.3-1.6-1.5-1.8-.2-.3 0-.4.1-.6.1-.1.3-.3.4-.5.1-.1.2-.3.2-.4.1-.2 0-.3 0-.5-.1-.1-.6-1.5-.8-2-.2-.5-.4-.4-.6-.5h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.3 0 1.3 1 2.6 1.1 2.8.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.3.2-.6.2-1.1.2-1.3-.1-.1-.3-.2-.6-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 5L2 22l5.2-1.4C8.6 21.5 10.3 22 12 22c5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3.1.8.8-3-.2-.3C4 14.7 3.6 13.4 3.6 12c0-4.6 3.8-8.4 8.4-8.4s8.4 3.8 8.4 8.4-3.8 8.4-8.4 8.4z"/></svg>
+                Avisame
+              </a>` : ''}
             </div>
           </div>
         </div>
@@ -882,10 +1001,12 @@
           if(saldoActual < precioAPagar) throw new Error('SIN_SALDO');
 
           let keyAsignada = null;
+          let quedoSinStock = false;
           if(Array.isArray(prodData.keys)){
             if(!prodData.keys.length) throw new Error('SIN_STOCK');
             keyAsignada = prodData.keys[0];
             transaction.update(prodRef, { keys: prodData.keys.slice(1) });
+            quedoSinStock = prodData.keys.length === 1;
           }
 
           transaction.update(userRef, { saldo: saldoActual - precioAPagar });
@@ -901,7 +1022,7 @@
             fecha: serverTimestamp()
           });
 
-          return { precioAPagar, keyAsignada, saldoNuevo: saldoActual - precioAPagar };
+          return { precioAPagar, keyAsignada, saldoNuevo: saldoActual - precioAPagar, quedoSinStock };
         });
 
         usuario.saldo = resultado.saldoNuevo;
@@ -915,6 +1036,10 @@
         }
         renderCatalogo(productos);
         cargarTopCompradores();
+
+        if(resultado.quedoSinStock){
+          avisarTelegramSinStock(producto.nombre);
+        }
 
         const mensaje = `¡Compraste "${producto.nombre}"! Tu saldo ahora es ${formatearPrecio(usuario.saldo)}.`;
         mostrarCartel(mensaje, 'ok', resultado.keyAsignada);
@@ -1410,6 +1535,8 @@
       if(!soporteFlotante.contains(e.target)) soporteFlotante.classList.remove('open');
     });
   </script>
+  <script type="module" src="notificaciones.js"></script>
   <script src="particles.js" defer></script>
+  <script src="cursor-fx.js" defer></script>
 </body>
 </html>

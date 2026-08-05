@@ -107,6 +107,99 @@
     display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;
   }
   .tb-tipo-card-head span{ font-size:12.5px; color:var(--grey); font-weight:600; }
+
+  /* ---------- layout general del panel admin: sidebar + contenido ---------- */
+  .card.admin-card{ max-width:980px; }
+
+  .admin-panel-header{ margin-bottom:22px; }
+  .admin-panel-header h2{ margin-bottom:0; }
+
+  .admin-shell{
+    display:flex;
+    align-items:flex-start;
+    gap:30px;
+  }
+
+  .admin-sidebar{
+    flex:0 0 188px;
+    display:flex;
+    flex-direction:column;
+    gap:22px;
+    position:sticky;
+    top:20px;
+  }
+
+  .admin-sidebar-group{ display:flex; flex-direction:column; gap:4px; }
+
+  .admin-sidebar-title{
+    font-family:'Anton', sans-serif;
+    font-size:14px;
+    letter-spacing:1.8px;
+    text-transform:uppercase;
+    color:var(--red-light);
+    margin-bottom:9px;
+    padding-left:14px;
+    position:relative;
+  }
+  .admin-sidebar-title::before{
+    content:'';
+    position:absolute;
+    left:0;
+    top:1px;
+    bottom:1px;
+    width:3px;
+    border-radius:2px;
+    background:var(--red);
+  }
+
+  .admin-nav-btn{
+    display:block;
+    width:100%;
+    text-align:left;
+    background:none;
+    border:none;
+    border-radius:9px;
+    color:var(--grey);
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:13.5px;
+    padding:9px 12px;
+    cursor:pointer;
+    transition:background .2s ease, color .2s ease;
+  }
+  .admin-nav-btn:hover{ background:rgba(255,255,255,0.05); color:var(--white); }
+  .admin-nav-btn.active{ background:rgba(225,6,0,0.14); color:var(--white); }
+
+  .admin-content{
+    flex:1 1 auto;
+    min-width:0;
+    border-left:1px solid rgba(255,255,255,0.08);
+    padding-left:30px;
+  }
+
+  @media (max-width:820px){
+    .card.admin-card{ max-width:640px; }
+    .admin-shell{ flex-direction:column; gap:18px; }
+    .admin-sidebar{
+      position:static;
+      flex-direction:row;
+      flex-wrap:wrap;
+      width:100%;
+      gap:14px 20px;
+      padding-bottom:16px;
+      border-bottom:1px solid rgba(255,255,255,0.08);
+    }
+    .admin-sidebar-group{ flex-direction:row; flex-wrap:wrap; align-items:center; gap:6px; }
+    .admin-sidebar-title{
+      padding-left:0;
+      margin-bottom:0;
+      margin-right:4px;
+      font-size:12.5px;
+    }
+    .admin-sidebar-title::before{ display:none; }
+    .admin-nav-btn{ width:auto; padding:7px 10px; }
+    .admin-content{ border-left:none; padding-left:0; }
+  }
 </style>
 </head>
 <body>
@@ -134,16 +227,38 @@
     <!-- PANEL -->
     <div class="card admin-card" id="card-panel" style="display:none;">
 
-      <div class="admin-tabs">
-        <button class="admin-tab active" id="tab-registros">Registros</button>
-        <button class="admin-tab" id="tab-saldos">Saldos</button>
-        <button class="admin-tab" id="tab-recargas">Recargas</button>
-        <button class="admin-tab" id="tab-compras-invitado">Sin cuenta</button>
-        <button class="admin-tab" id="tab-productos">Productos</button>
-        <button class="admin-tab" id="tab-navegacion">Navegación</button>
-        <button class="admin-tab" id="tab-compras">Compras</button>
-        <button class="admin-tab" id="tab-ticketbot">Bot Tickets</button>
+      <div class="admin-header admin-panel-header">
+        <h2>Panel de <span>administración</span></h2>
       </div>
+
+      <div class="admin-shell">
+        <nav class="admin-sidebar" id="admin-sidebar">
+          <div class="admin-sidebar-group">
+            <div class="admin-sidebar-title">Clientes</div>
+            <button class="admin-nav-btn active" id="tab-registros">Registros</button>
+            <button class="admin-nav-btn" id="tab-saldos">Saldos</button>
+            <button class="admin-nav-btn" id="tab-recargas">Recargas</button>
+            <button class="admin-nav-btn" id="tab-compras-invitado">Sin cuenta</button>
+          </div>
+          <div class="admin-sidebar-group">
+            <div class="admin-sidebar-title">Tienda</div>
+            <button class="admin-nav-btn" id="tab-productos">Productos</button>
+            <button class="admin-nav-btn" id="tab-cupones">Cupones</button>
+            <button class="admin-nav-btn" id="tab-navegacion">Navegación</button>
+            <button class="admin-nav-btn" id="tab-compras">Compras</button>
+          </div>
+          <div class="admin-sidebar-group">
+            <div class="admin-sidebar-title">Bots de Discord</div>
+            <button class="admin-nav-btn" id="tab-ticketbot">Bot Tickets</button>
+            <button class="admin-nav-btn" id="tab-ventasbot">Bot Ventas</button>
+          </div>
+          <div class="admin-sidebar-group">
+            <div class="admin-sidebar-title">Sitio</div>
+            <button class="admin-nav-btn" id="tab-mantenimiento">Mantenimiento</button>
+          </div>
+        </nav>
+
+        <div class="admin-content">
 
       <!-- TAB REGISTROS -->
       <div id="panel-registros">
@@ -194,6 +309,21 @@
         <div id="admin-compras-invitado-list" class="admin-list">
           <div class="loading-row">Cargando compras…</div>
         </div>
+      </div>
+
+      <!-- TAB MANTENIMIENTO -->
+      <div id="panel-mantenimiento" style="display:none;">
+        <div class="admin-header">
+          <h2>Modo <span>mantenimiento</span></h2>
+        </div>
+        <p class="sub">Con esto activado, cualquiera que entre a la tienda (index, login, registro, producto, recarga, mibot, ticketbot, ventasbot) ve un cartel de "en mantenimiento" en vez de la página normal. Vos seguís entrando siempre acá al panel, sin importar el estado.</p>
+
+        <div class="status-pill" id="mant-estado-pill" style="margin-bottom:20px; display:inline-block;">Cargando estado…</div>
+
+        <div>
+          <button class="btn btn-primary" id="mant-toggle-btn" style="width:100%; max-width:340px;" disabled>Cargando…</button>
+        </div>
+        <div class="form-error" id="mant-error"></div>
       </div>
 
       <!-- TAB PRODUCTOS -->
@@ -272,6 +402,63 @@
 
         <div id="admin-prod-list" class="admin-list" style="margin-top:24px;">
           <div class="loading-row">Cargando productos…</div>
+        </div>
+      </div>
+
+      <!-- TAB CUPONES -->
+      <div id="panel-cupones" style="display:none;">
+        <div class="admin-header">
+          <h2>Panel de <span>cupones</span></h2>
+        </div>
+        <p class="sub">Creá códigos de descuento para usar al comprar (individual o en el carrito). Podés limitar quién los puede usar, cuántas veces, y hasta cuándo valen.</p>
+
+        <div class="prod-form" id="cup-form">
+          <input type="hidden" id="cup-edit-id" value="">
+          <div class="field">
+            <label for="cup-codigo">Código</label>
+            <input id="cup-codigo" type="text" placeholder="Ej: BIENVENIDA10" style="text-transform:uppercase;">
+            <span style="font-size:11px; color:var(--grey); display:block; margin-top:4px;">Se guarda en mayúsculas. La gente lo escribe tal cual al pagar.</span>
+          </div>
+          <div class="tb-row">
+            <div class="field">
+              <label for="cup-tipo">Tipo de descuento</label>
+              <select id="cup-tipo" style="width:100%; background:var(--panel-2); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:10px 12px; color:var(--white); font-family:'Inter',sans-serif; font-size:13px;">
+                <option value="porcentaje">Porcentaje (% OFF)</option>
+                <option value="fijo">Monto fijo (USDT OFF)</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="cup-valor">Valor</label>
+              <input id="cup-valor" type="text" inputmode="decimal" placeholder="Ej: 15 (para 15% o 15 USDT)">
+            </div>
+          </div>
+          <div class="field">
+            <label for="cup-destinatario">¿Quién lo puede usar?</label>
+            <select id="cup-destinatario" style="width:100%; background:var(--panel-2); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:10px 12px; color:var(--white); font-family:'Inter',sans-serif; font-size:13px;">
+              <option value="todos">Todos (con cuenta o sin cuenta)</option>
+              <option value="logueados">Solo gente con cuenta (logueada)</option>
+              <option value="visitantes">Solo gente sin cuenta</option>
+            </select>
+          </div>
+          <div class="tb-row">
+            <div class="field">
+              <label for="cup-usos-max">Usos máximos (0 = ilimitado)</label>
+              <input id="cup-usos-max" type="text" inputmode="numeric" placeholder="Ej: 50">
+            </div>
+            <div class="field">
+              <label for="cup-vencimiento">Vence el (opcional)</label>
+              <input id="cup-vencimiento" type="date">
+            </div>
+          </div>
+          <div class="form-error" id="cup-form-error"></div>
+          <div style="display:flex; gap:10px;">
+            <button class="btn btn-primary" style="width:100%;" id="cup-submit-btn">Crear cupón</button>
+            <button class="btn btn-secondary" style="width:100%; display:none;" id="cup-cancel-btn">Cancelar edición</button>
+          </div>
+        </div>
+
+        <div id="admin-cup-list" class="admin-list" style="margin-top:24px;">
+          <div class="loading-row">Cargando cupones…</div>
         </div>
       </div>
 
@@ -389,18 +576,6 @@
                 </button>
               </div>
             </div>
-            <div class="tb-row">
-              <div class="field">
-                <label for="tb-max-tickets">Máximo de tickets activos por usuario</label>
-                <input id="tb-max-tickets" type="number" min="0" step="1" placeholder="Ej: 1">
-                <span class="tb-note">Cuántos tickets puede tener abiertos a la vez la misma persona en este servidor. Dejalo en 0 para no poner límite.</span>
-              </div>
-              <div class="field">
-                <label for="tb-cierre-inactividad">Cierre automático por inactividad (minutos)</label>
-                <input id="tb-cierre-inactividad" type="number" min="0" step="1" placeholder="Ej: 60">
-                <span class="tb-note">Si nadie escribe en el ticket durante estos minutos, el bot avisa y lo cierra solo unos minutos después. Dejalo en 0 para desactivarlo.</span>
-              </div>
-            </div>
           </div>
 
           <!-- MENSAJE DEL PANEL -->
@@ -507,23 +682,9 @@
                 Ver variables disponibles
               </button>
             </div>
-            <div class="tb-row">
-              <div class="field">
-                <label for="tb-cerrar-texto">Texto del botón para cerrar el ticket (staff)</label>
-                <input id="tb-cerrar-texto" type="text" placeholder="Ej: Cerrar ticket">
-              </div>
-              <div class="field">
-                <label for="tb-salir-texto">Texto del botón "Salir" (lo usa quien abrió el ticket)</label>
-                <input id="tb-salir-texto" type="text" placeholder="Ej: Salir">
-              </div>
-            </div>
             <div class="field">
-              <label for="tb-pedir-calificacion">Pedir calificación al salir</label>
-              <select id="tb-pedir-calificacion">
-                <option value="no">No</option>
-                <option value="si">Sí, pedir que califique de 1 a 5 antes de cerrar</option>
-              </select>
-              <span class="tb-note">Solo aplica cuando el cliente toca "Salir" (no cuando el staff toca "Cerrar ticket"). La calificación queda guardada en Firestore, en la colección "calificaciones".</span>
+              <label for="tb-cerrar-texto">Texto del botón para cerrar el ticket</label>
+              <input id="tb-cerrar-texto" type="text" placeholder="Ej: Cerrar ticket">
             </div>
           </div>
 
@@ -536,6 +697,71 @@
         </div>
       </div>
 
+      <!-- TAB BOT VENTAS -->
+      <div id="panel-ventasbot" style="display:none;">
+        <div class="admin-header">
+          <h2>Bot de <span>ventas</span></h2>
+        </div>
+        <p class="sub">Configurá el bot que avisa las ventas en Discord y aprobá los servidores de clientes que quieran usar su propio bot de ventas (solo el comando <code>/venta-ticket</code>). El bot lee esta configuración solo — no hace falta tocar código.</p>
+
+        <div class="tb-warning">
+          <strong>Importante:</strong> acá NO se carga el token del bot (la clave secreta de Discord). Ese token va únicamente en el <code>.env</code> del servidor donde corre cada bot, nunca en esta página. Todo lo de acá abajo es seguro de guardar: son solo IDs de Discord.
+        </div>
+
+        <div class="admin-tabs" id="admvb-tabs">
+          <button class="admin-tab active" id="admvb-tab-usuarios">Servidores de clientes <span class="admin-tag" id="ventasbot-pendientes-tag">0 pendientes</span></button>
+          <button class="admin-tab" id="admvb-tab-servidor">Tu servidor</button>
+        </div>
+
+        <!-- SERVIDORES DE CLIENTES -->
+        <div id="admvb-panel-usuarios">
+          <p class="sub">Cada cliente aprobado puede cargar, desde su propio panel (ventasbot.html), el ID de su servidor, su canal de ventas y sus roles de staff. No reciben avisos de las compras/recargas de la tienda — solo lo que ellos mismos carguen con <code>/venta-ticket</code>. El bot NO funciona en el servidor de ningún cliente hasta que vos lo apruebes acá.</p>
+
+          <div id="admin-ventasbot-list" class="admin-list">
+            <div class="loading-row">Cargando servidores…</div>
+          </div>
+        </div>
+
+        <!-- TU PROPIO SERVIDOR -->
+        <div id="vb-form-wrap" style="display:none;">
+          <p class="sub" style="margin-top:0;">Esta es la configuración de TU servidor (el de la tienda). No necesita aprobación porque la cargás vos. Este servidor recibe los avisos automáticos de compras y recargas, además de <code>/venta-ticket</code>.</p>
+
+          <div class="tb-section" style="margin-top:0; padding-top:0; border-top:none;">
+            <div class="tb-row">
+              <div class="field">
+                <label for="vb-guild-id">ID de tu servidor de Discord</label>
+                <input id="vb-guild-id" type="text" placeholder="Ej: 123456789012345678">
+              </div>
+              <div class="field">
+                <label for="vb-canal-ventas">ID del canal de avisos de ventas</label>
+                <input id="vb-canal-ventas" type="text" placeholder="Ej: 123456789012345678">
+              </div>
+            </div>
+            <div class="tb-row">
+              <div class="field">
+                <label for="vb-canal-recargas">ID del canal de avisos de recargas</label>
+                <input id="vb-canal-recargas" type="text" placeholder="Ej: 123456789012345678">
+              </div>
+              <div class="field">
+                <label for="vb-rol-staff">ID(s) de rol que pueden usar /venta-ticket</label>
+                <input id="vb-rol-staff" type="text" placeholder="Separados por coma si son varios">
+                <span class="tb-note">Clic derecho sobre el rol en Ajustes del servidor → Roles → "Copiar ID".</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-error" id="vb-form-error"></div>
+
+          <div class="tb-save-bar">
+            <button class="btn btn-primary" style="width:100%;" id="vb-guardar-btn">Guardar configuración</button>
+            <div class="tb-saved-msg" id="vb-saved-msg">✓ Configuración guardada. El bot la toma sola, sin reiniciar.</div>
+          </div>
+        </div>
+      </div>
+
+        </div>
+      </div>
+
     </div>
 
   </div>
@@ -544,7 +770,8 @@
     import {
       firebaseConfig, ADMIN_PASSWORD,
       EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, EMAILJS_PUBLIC_KEY,
-      TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, IMGBB_API_KEY
+      TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, IMGBB_API_KEY,
+      WHATSAPP_RECARGAS, INSTAGRAM_PERSONAL
     } from './firebase-config.js';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
     import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc, addDoc, deleteDoc, query, where, orderBy, serverTimestamp, increment, arrayUnion, runTransaction }
@@ -573,6 +800,61 @@
       cargarCompras();
       cargarConfigTicketbot();
       cargarServidoresUsuarios();
+      cargarConfigVentasbot();
+      cargarServidoresVentasbot();
+      cargarMantenimiento();
+    });
+
+    /* ---------- modo mantenimiento (guardado en Firestore: config/sitio) ---------- */
+    const MANT_DOC = doc(db, 'config', 'sitio');
+    const mantPill = document.getElementById('mant-estado-pill');
+    const mantBtn = document.getElementById('mant-toggle-btn');
+    const mantError = document.getElementById('mant-error');
+    let mantenimientoActivo = false;
+
+    function pintarMantenimiento(){
+      mantPill.classList.remove('status-pendiente', 'status-aprobado', 'status-rechazado');
+      if(mantenimientoActivo){
+        mantPill.classList.add('status-rechazado');
+        mantPill.textContent = '🛠️ Mantenimiento ACTIVO — la tienda está cerrada al público';
+        mantBtn.textContent = 'Desactivar mantenimiento (reabrir la tienda)';
+        mantBtn.classList.remove('btn-primary');
+        mantBtn.classList.add('btn-secondary');
+      }else{
+        mantPill.classList.add('status-aprobado');
+        mantPill.textContent = '✓ Sitio funcionando normalmente';
+        mantBtn.textContent = 'Activar mantenimiento (cerrar la tienda)';
+        mantBtn.classList.remove('btn-secondary');
+        mantBtn.classList.add('btn-primary');
+      }
+      mantBtn.disabled = false;
+    }
+
+    async function cargarMantenimiento(){
+      try{
+        const snap = await getDoc(MANT_DOC);
+        mantenimientoActivo = snap.exists() ? !!snap.data().activo : false;
+      }catch(err){
+        console.error('Error al cargar estado de mantenimiento:', err);
+        mantError.textContent = 'No se pudo cargar el estado. Probá de nuevo.';
+      }
+      pintarMantenimiento();
+    }
+
+    mantBtn.addEventListener('click', async () => {
+      mantError.textContent = '';
+      mantBtn.disabled = true;
+      mantBtn.textContent = 'Guardando…';
+      try{
+        await setDoc(MANT_DOC, { activo: !mantenimientoActivo, actualizado: serverTimestamp() }, { merge: true });
+        mantenimientoActivo = !mantenimientoActivo;
+        pintarMantenimiento();
+      }catch(err){
+        console.error('Error al cambiar el modo mantenimiento:', err);
+        mantError.textContent = 'No se pudo guardar el cambio. Probá de nuevo.';
+        mantBtn.disabled = false;
+        mantBtn.textContent = mantenimientoActivo ? 'Desactivar mantenimiento (reabrir la tienda)' : 'Activar mantenimiento (cerrar la tienda)';
+      }
     });
 
     /* ---------- tabs ---------- */
@@ -582,9 +864,12 @@
       recargas: { btn: document.getElementById('tab-recargas'), panel: document.getElementById('panel-recargas') },
       compras_invitado: { btn: document.getElementById('tab-compras-invitado'), panel: document.getElementById('panel-compras-invitado') },
       productos: { btn: document.getElementById('tab-productos'), panel: document.getElementById('panel-productos') },
+      cupones: { btn: document.getElementById('tab-cupones'), panel: document.getElementById('panel-cupones') },
       navegacion: { btn: document.getElementById('tab-navegacion'), panel: document.getElementById('panel-navegacion') },
       compras: { btn: document.getElementById('tab-compras'), panel: document.getElementById('panel-compras') },
       ticketbot: { btn: document.getElementById('tab-ticketbot'), panel: document.getElementById('panel-ticketbot') },
+      ventasbot: { btn: document.getElementById('tab-ventasbot'), panel: document.getElementById('panel-ventasbot') },
+      mantenimiento: { btn: document.getElementById('tab-mantenimiento'), panel: document.getElementById('panel-mantenimiento') },
     };
 
     function activarTab(nombre){
@@ -600,9 +885,12 @@
     tabs.recargas.btn.addEventListener('click', () => activarTab('recargas'));
     tabs.compras_invitado.btn.addEventListener('click', () => activarTab('compras_invitado'));
     tabs.productos.btn.addEventListener('click', () => activarTab('productos'));
+    tabs.cupones.btn.addEventListener('click', () => { activarTab('cupones'); cargarCupones(); });
     tabs.navegacion.btn.addEventListener('click', () => activarTab('navegacion'));
     tabs.compras.btn.addEventListener('click', () => activarTab('compras'));
     tabs.ticketbot.btn.addEventListener('click', () => activarTab('ticketbot'));
+    tabs.ventasbot.btn.addEventListener('click', () => activarTab('ventasbot'));
+    tabs.mantenimiento.btn.addEventListener('click', () => activarTab('mantenimiento'));
 
     /* ---------- sub-pestañas dentro de "Bot de tickets" (Usuarios / Servidor / Panel / Bienvenida) ---------- */
     const admtbTabs = {
@@ -624,6 +912,23 @@
     admtbTabs.servidor.btn.addEventListener('click', () => activarAdmtbTab('servidor'));
     admtbTabs.panel.btn.addEventListener('click', () => activarAdmtbTab('panel'));
     admtbTabs.bienvenida.btn.addEventListener('click', () => activarAdmtbTab('bienvenida'));
+
+    /* ---------- sub-pestañas dentro de "Bot de ventas" (Usuarios / Servidor) ---------- */
+    const admvbTabs = {
+      usuarios: { btn: document.getElementById('admvb-tab-usuarios'), panel: document.getElementById('admvb-panel-usuarios') },
+      servidor: { btn: document.getElementById('admvb-tab-servidor'), panel: null },
+    };
+    const admvbFormWrap = document.getElementById('vb-form-wrap');
+    function activarAdmvbTab(nombre){
+      Object.entries(admvbTabs).forEach(([key, t]) => {
+        const activo = key === nombre;
+        t.btn.classList.toggle('active', activo);
+        if(t.panel) t.panel.style.display = activo ? 'block' : 'none';
+      });
+      admvbFormWrap.style.display = (nombre === 'usuarios') ? 'none' : 'block';
+    }
+    admvbTabs.usuarios.btn.addEventListener('click', () => activarAdmvbTab('usuarios'));
+    admvbTabs.servidor.btn.addEventListener('click', () => activarAdmvbTab('servidor'));
 
     function escapeHtml(str){
       const div = document.createElement('div');
@@ -850,8 +1155,8 @@
 
       const statusClass = 'status-' + r.estado;
       const statusLabel = r.estado === 'pendiente' ? 'Pendiente' : (r.estado === 'aprobado' ? 'Aprobado' : 'Rechazado');
-      const tipo = r.tipo === 'bot' ? 'bot' : 'tienda';
-      const tipoLabel = tipo === 'bot' ? 'Bot de tickets' : 'Tienda';
+      const tipo = r.tipo === 'bot' ? 'bot' : r.tipo === 'ventas' ? 'ventas' : 'tienda';
+      const tipoLabel = tipo === 'bot' ? 'Bot de tickets' : tipo === 'ventas' ? 'Bot de ventas' : 'Tienda';
 
       return `
         <div class="reg-card">
@@ -923,12 +1228,16 @@
     async function enviarEmailEstado(r, estado){
       const esAprobado = estado === 'aprobado';
       const asunto = esAprobado
-        ? '¡Tu cuenta en XITERKING STORE fue aprobada!'
-        : 'Novedades sobre tu registro en XITERKING STORE';
+        ? 'Tu cuenta en XITERKING STORE fue aprobada'
+        : 'Novedades sobre tu solicitud en XITERKING STORE';
       const mensaje = esAprobado
-        ? `Hola ${r.nombre},\n\n¡Buenas noticias! Tu cuenta en XITERKING STORE fue aprobada.\nYa podés ingresar con tu email y contraseña.\n\n¡Gracias por registrarte!`
-        : `Hola ${r.nombre},\n\nRevisamos tu solicitud de registro en XITERKING STORE y por el momento no fue aprobada.\nSi creés que se trata de un error, podés escribirnos para más información.`;
+        ? `Hola ${r.nombre},\n\nTe escribimos para confirmarte que tu cuenta en XITERKING STORE fue revisada y aprobada.\n\nYa podés iniciar sesión con el email y la contraseña que usaste al registrarte, y acceder a todos los beneficios de tu cuenta.\n\nGracias por elegirnos. Cualquier consulta, respondé este mismo email o escribinos por WhatsApp.`
+        : `Hola ${r.nombre},\n\nRevisamos tu solicitud de registro en XITERKING STORE y, por el momento, no pudimos aprobarla.\n\nSi creés que se trata de un error o querés más información al respecto, respondé este email o escribinos por WhatsApp y con gusto te ayudamos.`;
 
+      return enviarEmailPlantilla(r.nombre, r.email, asunto, mensaje);
+    }
+
+    async function enviarEmailPlantilla(nombre, email, asunto, mensaje){
       try{
         const resp = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
           method: 'POST',
@@ -938,10 +1247,13 @@
             template_id: EMAILJS_TEMPLATE_ID,
             user_id: EMAILJS_PUBLIC_KEY,
             template_params: {
-              to_name: r.nombre,
-              to_email: r.email,
+              to_name: nombre,
+              to_email: email,
               asunto,
-              mensaje
+              mensaje,
+              mensaje_html: mensaje.replace(/\n/g, '<br>'),
+              whatsapp_link: `https://wa.me/${WHATSAPP_RECARGAS}`,
+              instagram_link: INSTAGRAM_PERSONAL
             }
           })
         });
@@ -952,7 +1264,7 @@
         }
         return { ok: true };
       }catch(err){
-        console.error('Error al enviar email de estado:', err);
+        console.error('Error al enviar email:', err);
         return { ok: false, error: err.message };
       }
     }
@@ -1079,8 +1391,10 @@
             productoId: c.productoId,
             productoNombre: c.productoNombre,
             precio: c.precio,
+            precioLista: c.precio,
             key: keyAsignada,
             metodoPago: c.metodo,
+            avisado: false,
             fecha: serverTimestamp()
           });
         });
@@ -1123,69 +1437,17 @@
     }
 
     async function enviarEmailRechazo(email, productoNombre){
-      const asunto = `Tu compra de "${productoNombre}" en XITERKING STORE no fue aprobada`;
-      const mensaje = `Hola,\n\nRevisamos tu solicitud de compra de "${productoNombre}" en XITERKING STORE y no pudimos aprobarla (no llegamos a verificar el comprobante o hubo algún problema con el pago).\n\nSi creés que es un error o querés volver a intentarlo, respondé este email o escribinos por WhatsApp.`;
-
-      try{
-        const resp = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            service_id: EMAILJS_SERVICE_ID,
-            template_id: EMAILJS_TEMPLATE_ID,
-            user_id: EMAILJS_PUBLIC_KEY,
-            template_params: {
-              to_name: email,
-              to_email: email,
-              asunto,
-              mensaje
-            }
-          })
-        });
-        if(!resp.ok){
-          const detalle = await resp.text();
-          console.error('EmailJS respondió con error:', detalle);
-          return { ok: false, error: detalle };
-        }
-        return { ok: true };
-      }catch(err){
-        console.error('Error al enviar email de rechazo:', err);
-        return { ok: false, error: err.message };
-      }
+      const asunto = `Tu compra de "${productoNombre}" en XITERKING STORE no pudo aprobarse`;
+      const mensaje = `Hola,\n\nRevisamos tu solicitud de compra de "${productoNombre}" en XITERKING STORE y, por el momento, no pudimos aprobarla (no llegamos a verificar el comprobante o hubo algún inconveniente con el pago).\n\nSi creés que se trata de un error o querés volver a intentarlo, respondé este email o escribinos por WhatsApp y con gusto te ayudamos.`;
+      return enviarEmailPlantilla(email, email, asunto, mensaje);
     }
 
     async function enviarEmailKey(email, productoNombre, key){
-      const asunto = `¡Tu compra de "${productoNombre}" en XITERKING STORE fue aprobada!`;
+      const asunto = `Tu compra de "${productoNombre}" en XITERKING STORE fue aprobada`;
       const mensaje = key
-        ? `¡Gracias por tu compra en XITERKING STORE!\n\nProducto: ${productoNombre}\nTu key: ${key}\n\nCualquier consulta, respondé este email.`
-        : `¡Gracias por tu compra en XITERKING STORE!\n\nTu compra de "${productoNombre}" ya fue aprobada. En breve nos comunicamos con los detalles de entrega.\n\nCualquier consulta, respondé este email.`;
-
-      try{
-        const resp = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            service_id: EMAILJS_SERVICE_ID,
-            template_id: EMAILJS_TEMPLATE_ID,
-            user_id: EMAILJS_PUBLIC_KEY,
-            template_params: {
-              to_name: email,
-              to_email: email,
-              asunto,
-              mensaje
-            }
-          })
-        });
-        if(!resp.ok){
-          const detalle = await resp.text();
-          console.error('EmailJS respondió con error:', detalle);
-          return { ok: false, error: detalle };
-        }
-        return { ok: true };
-      }catch(err){
-        console.error('Error al enviar email con la key:', err);
-        return { ok: false, error: err.message };
-      }
+        ? `Gracias por tu compra en XITERKING STORE.\n\nProducto: ${productoNombre}\nTu key: ${key}\n\nGuardá este email como comprobante. Cualquier consulta, respondé este mismo email o escribinos por WhatsApp.`
+        : `Gracias por tu compra en XITERKING STORE.\n\nTu compra de "${productoNombre}" ya fue aprobada. En breve nos comunicamos con los detalles de entrega.\n\nCualquier consulta, respondé este email o escribinos por WhatsApp.`;
+      return enviarEmailPlantilla(email, email, asunto, mensaje);
     }
 
     /* ============================================================
@@ -1558,6 +1820,203 @@
     }
 
     /* ============================================================
+       CUPONES DE DESCUENTO
+       ============================================================ */
+    const cupCodigo = document.getElementById('cup-codigo');
+    const cupTipo = document.getElementById('cup-tipo');
+    const cupValor = document.getElementById('cup-valor');
+    const cupDestinatario = document.getElementById('cup-destinatario');
+    const cupUsosMax = document.getElementById('cup-usos-max');
+    const cupVencimiento = document.getElementById('cup-vencimiento');
+    const cupEditId = document.getElementById('cup-edit-id');
+    const cupFormError = document.getElementById('cup-form-error');
+    const cupSubmitBtn = document.getElementById('cup-submit-btn');
+    const cupCancelBtn = document.getElementById('cup-cancel-btn');
+
+    const DESTINATARIO_LABEL_CUPON = {
+      todos: 'Todos',
+      logueados: 'Solo con cuenta',
+      visitantes: 'Solo sin cuenta'
+    };
+
+    cupSubmitBtn.addEventListener('click', guardarCupon);
+    cupCancelBtn.addEventListener('click', cancelarEdicionCupon);
+
+    async function cargarCupones(){
+      const listEl = document.getElementById('admin-cup-list');
+      listEl.innerHTML = '<div class="loading-row">Cargando cupones…</div>';
+
+      try{
+        const snapshot = await getDocs(collection(db, "cupones"));
+        const cupones = [];
+        snapshot.forEach(docSnap => cupones.push({ id: docSnap.id, ...docSnap.data() }));
+
+        if(!cupones.length){
+          listEl.innerHTML = '<div class="empty-state">Todavía no creaste cupones.</div>';
+          return;
+        }
+
+        cupones.sort((a, b) => (a.codigo || '').localeCompare(b.codigo || ''));
+        listEl.innerHTML = cupones.map(c => renderCuponCard(c)).join('');
+
+        cupones.forEach(c => {
+          const editBtn = document.getElementById('editar-cup-' + c.id);
+          const toggleBtn = document.getElementById('toggle-cup-' + c.id);
+          const delBtn = document.getElementById('borrar-cup-' + c.id);
+          if(editBtn) editBtn.addEventListener('click', () => editarCupon(c));
+          if(toggleBtn) toggleBtn.addEventListener('click', () => toggleActivoCupon(c));
+          if(delBtn) delBtn.addEventListener('click', () => borrarCupon(c));
+        });
+      }catch(err){
+        console.error('Error al cargar cupones:', err);
+        listEl.innerHTML = '<div class="empty-state">No se pudieron cargar los cupones. Revisá la configuración de Firebase.</div>';
+      }
+    }
+
+    function renderCuponCard(c){
+      const activo = c.activo !== false;
+      const valorTxt = c.tipo === 'fijo' ? `-${c.valor} USDT` : `-${c.valor}%`;
+      const usosMax = c.usosMaximos || 0;
+      const usosTxt = usosMax > 0 ? `${c.usosActuales || 0} / ${usosMax} usos` : `${c.usosActuales || 0} usos (ilimitado)`;
+      const vencTxt = c.vencimiento ? `Vence: ${c.vencimiento}` : 'Sin vencimiento';
+      return `
+        <div class="reg-card">
+          <div class="reg-top">
+            <div>
+              <div class="reg-name">${escapeHtml(c.codigo)} <span style="font-size:11px; font-weight:600; color:var(--red-light); border:1px solid rgba(225,6,0,0.4); border-radius:20px; padding:2px 8px; margin-left:6px; vertical-align:middle;">${valorTxt}</span></div>
+              <div class="reg-meta">${DESTINATARIO_LABEL_CUPON[c.destinatario] || 'Todos'} · ${usosTxt} · ${vencTxt}</div>
+            </div>
+            <span class="status-pill ${activo ? 'status-aprobado' : 'status-rechazado'}">${activo ? 'Activo' : 'Desactivado'}</span>
+          </div>
+          <div class="reg-actions">
+            <button class="mini-btn mini-saldo" id="editar-cup-${c.id}">Editar</button>
+            <button class="mini-btn mini-approve" id="toggle-cup-${c.id}">${activo ? 'Desactivar' : 'Activar'}</button>
+            <button class="mini-btn mini-reject" id="borrar-cup-${c.id}">Borrar</button>
+          </div>
+        </div>
+      `;
+    }
+
+    async function guardarCupon(){
+      const codigo = cupCodigo.value.trim().toUpperCase();
+      const tipo = cupTipo.value;
+      const valor = parsearPrecio(cupValor.value);
+      const destinatario = cupDestinatario.value;
+      const usosMaximos = parseInt(cupUsosMax.value.trim(), 10) || 0;
+      const vencimiento = cupVencimiento.value || null;
+      const editId = cupEditId.value;
+
+      cupFormError.textContent = '';
+
+      if(!codigo){
+        cupFormError.textContent = 'Ingresá un código para el cupón.';
+        return;
+      }
+      if(valor == null || valor <= 0){
+        cupFormError.textContent = 'Ingresá un valor de descuento válido.';
+        return;
+      }
+      if(tipo === 'porcentaje' && valor > 100){
+        cupFormError.textContent = 'Un descuento porcentual no puede ser mayor a 100.';
+        return;
+      }
+
+      cupSubmitBtn.disabled = true;
+      cupSubmitBtn.textContent = editId ? 'Guardando…' : 'Creando…';
+
+      try{
+        // el código es el ID del documento, así el buscador en la web
+        // (producto.html) lo encuentra directo sin tener que hacer una
+        // consulta por campo. Si se edita el código, se borra el viejo.
+        if(editId && editId !== codigo){
+          await deleteDoc(doc(db, "cupones", editId));
+        }
+
+        const cuponRef = doc(db, "cupones", codigo);
+        if(editId){
+          const snapExistente = await getDoc(cuponRef);
+          const usosActuales = editId === codigo && snapExistente.exists() ? (snapExistente.data().usosActuales || 0) : 0;
+          await setDoc(cuponRef, {
+            codigo, tipo, valor, destinatario, usosMaximos, vencimiento,
+            usosActuales,
+            activo: true
+          }, { merge: true });
+        }else{
+          const yaExiste = await getDoc(cuponRef);
+          if(yaExiste.exists()){
+            cupFormError.textContent = 'Ya existe un cupón con ese código.';
+            cupSubmitBtn.disabled = false;
+            cupSubmitBtn.textContent = 'Crear cupón';
+            return;
+          }
+          await setDoc(cuponRef, {
+            codigo, tipo, valor, destinatario, usosMaximos, vencimiento,
+            usosActuales: 0,
+            activo: true,
+            creado: serverTimestamp()
+          });
+        }
+
+        cancelarEdicionCupon();
+        cargarCupones();
+      }catch(err){
+        console.error('Error al guardar cupón:', err);
+        cupFormError.textContent = 'No se pudo guardar el cupón. Probá de nuevo.';
+      }finally{
+        cupSubmitBtn.disabled = false;
+        cupSubmitBtn.textContent = editId ? 'Guardar cambios' : 'Crear cupón';
+      }
+    }
+
+    function editarCupon(c){
+      cupEditId.value = c.id;
+      cupCodigo.value = c.codigo || '';
+      cupTipo.value = c.tipo || 'porcentaje';
+      cupValor.value = precioParaInput(c.valor);
+      cupDestinatario.value = c.destinatario || 'todos';
+      cupUsosMax.value = c.usosMaximos ? String(c.usosMaximos) : '';
+      cupVencimiento.value = c.vencimiento || '';
+      cupSubmitBtn.textContent = 'Guardar cambios';
+      cupCancelBtn.style.display = 'block';
+      cupFormError.textContent = '';
+      document.getElementById('cup-form').scrollIntoView({ behavior:'smooth', block:'center' });
+    }
+
+    function cancelarEdicionCupon(){
+      cupEditId.value = '';
+      cupCodigo.value = '';
+      cupTipo.value = 'porcentaje';
+      cupValor.value = '';
+      cupDestinatario.value = 'todos';
+      cupUsosMax.value = '';
+      cupVencimiento.value = '';
+      cupSubmitBtn.textContent = 'Crear cupón';
+      cupCancelBtn.style.display = 'none';
+      cupFormError.textContent = '';
+    }
+
+    async function toggleActivoCupon(c){
+      try{
+        await updateDoc(doc(db, "cupones", c.id), { activo: c.activo === false });
+        cargarCupones();
+      }catch(err){
+        console.error('Error al cambiar estado del cupón:', err);
+        alert('No se pudo actualizar el cupón.');
+      }
+    }
+
+    async function borrarCupon(c){
+      if(!confirm(`¿Borrar el cupón "${c.codigo}" definitivamente?`)) return;
+      try{
+        await deleteDoc(doc(db, "cupones", c.id));
+        cargarCupones();
+      }catch(err){
+        console.error('Error al borrar cupón:', err);
+        alert('No se pudo borrar el cupón.');
+      }
+    }
+
+    /* ============================================================
        NAVEGACIÓN (botones del panel lateral de la tienda)
        ============================================================ */
     const navLabel = document.getElementById('nav-label');
@@ -1825,6 +2284,148 @@
     }
 
     /* ============================================================
+       SERVIDORES DE CLIENTES — BOT DE VENTAS (aprobación manual)
+       ============================================================ */
+    async function cargarServidoresVentasbot(){
+      const listEl = document.getElementById('admin-ventasbot-list');
+      listEl.innerHTML = '<div class="loading-row">Cargando servidores…</div>';
+
+      try{
+        const snapshot = await getDocs(collection(db, "ventasbotConfigs"));
+
+        if(snapshot.empty){
+          listEl.innerHTML = '<div class="empty-state">Todavía nadie cargó su servidor.</div>';
+          document.getElementById('ventasbot-pendientes-tag').textContent = '0 pendientes';
+          return;
+        }
+
+        const configs = [];
+        snapshot.forEach(d => configs.push({ id: d.id, ...d.data() }));
+
+        const pendientes = configs.filter(c => c.estadoAprobacion !== 'aprobado' && c.estadoAprobacion !== 'rechazado').length;
+        document.getElementById('ventasbot-pendientes-tag').textContent = `${pendientes} pendiente${pendientes === 1 ? '' : 's'}`;
+
+        const orden = { pendiente: 0, aprobado: 1, rechazado: 2 };
+        configs.sort((a, b) => (orden[a.estadoAprobacion] ?? 0) - (orden[b.estadoAprobacion] ?? 0));
+
+        listEl.innerHTML = configs.map(renderServidorCardVenta).join('');
+
+        configs.forEach(c => {
+          const aprobarBtn = document.getElementById(`aprobar-vb-${c.id}`);
+          const rechazarBtn = document.getElementById(`rechazar-vb-${c.id}`);
+          if(aprobarBtn) aprobarBtn.addEventListener('click', () => cambiarEstadoServidorVenta(c, 'aprobado'));
+          if(rechazarBtn) rechazarBtn.addEventListener('click', () => cambiarEstadoServidorVenta(c, 'rechazado'));
+        });
+      }catch(err){
+        console.error('Error al cargar los servidores del bot de ventas:', err);
+        listEl.innerHTML = '<div class="empty-state">No se pudo cargar la lista. Revisá la configuración de Firebase.</div>';
+      }
+    }
+
+    function renderServidorCardVenta(c){
+      const estado = c.estadoAprobacion === 'aprobado' || c.estadoAprobacion === 'rechazado' ? c.estadoAprobacion : 'pendiente';
+      const statusLabel = estado === 'pendiente' ? 'Pendiente' : (estado === 'aprobado' ? 'Aprobado' : 'Rechazado');
+
+      return `
+        <div class="reg-card">
+          <div class="reg-top">
+            <div>
+              <div class="reg-name">${escapeHtml(c.usuarioNombre || '(sin nombre)')}</div>
+              <div class="reg-meta">
+                ${escapeHtml(c.usuarioEmail || '')}<br>
+                ID del servidor: <strong>${escapeHtml(c.guildId || '—')}</strong><br>
+                Canal de ventas: ${escapeHtml(c.canalVentasId || '—')} · Roles staff: ${escapeHtml(c.staffRoleIds || '—')}
+              </div>
+            </div>
+            <span class="status-pill status-${estado}">${statusLabel}</span>
+          </div>
+          <div class="reg-actions">
+            <button class="mini-btn mini-approve" id="aprobar-vb-${c.id}" ${estado==='aprobado' ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}>Aprobar</button>
+            <button class="mini-btn mini-reject" id="rechazar-vb-${c.id}" ${estado==='rechazado' ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}>Rechazar</button>
+          </div>
+        </div>
+      `;
+    }
+
+    async function cambiarEstadoServidorVenta(c, nuevoEstado){
+      try{
+        await updateDoc(doc(db, "ventasbotConfigs", c.id), { estadoAprobacion: nuevoEstado });
+        cargarServidoresVentasbot();
+      }catch(err){
+        console.error('Error al actualizar el estado del servidor de ventas:', err);
+        alert('No se pudo actualizar. Probá de nuevo.');
+      }
+    }
+
+    /* ============================================================
+       BOT DE VENTAS — config del servidor propio (config/ventasbot,
+       la usa index.js del bot de ventas)
+       ============================================================ */
+    const CONFIG_DOC_VENTASBOT = doc(db, "config", "ventasbot");
+
+    const vbEl = (id) => document.getElementById(id);
+    const vbCampos = {
+      guildId: vbEl('vb-guild-id'),
+      canalVentasId: vbEl('vb-canal-ventas'),
+      canalRecargasId: vbEl('vb-canal-recargas'),
+      staffRoleIds: vbEl('vb-rol-staff'),
+    };
+    let vbConfigCargada = false;
+
+    async function cargarConfigVentasbot(){
+      if(vbConfigCargada) return;
+      vbConfigCargada = true;
+
+      let datos = {};
+      try{
+        const snap = await getDoc(CONFIG_DOC_VENTASBOT);
+        if(snap.exists()) datos = snap.data();
+      }catch(err){
+        console.error('Error al cargar la configuración del bot de ventas:', err);
+        vbEl('vb-form-error').textContent = 'No se pudo cargar la configuración guardada.';
+      }
+
+      Object.entries(vbCampos).forEach(([key, input]) => {
+        input.value = datos[key] != null ? datos[key] : '';
+      });
+    }
+
+    const vbGuardarBtn = vbEl('vb-guardar-btn');
+    const vbFormError = vbEl('vb-form-error');
+    const vbSavedMsg = vbEl('vb-saved-msg');
+
+    vbGuardarBtn.addEventListener('click', async () => {
+      vbFormError.textContent = '';
+      vbSavedMsg.style.display = 'none';
+
+      if(!vbCampos.guildId.value.trim() || !vbCampos.canalVentasId.value.trim() || !vbCampos.canalRecargasId.value.trim()){
+        vbFormError.textContent = 'Completá al menos el ID de tu servidor y los dos canales (ventas y recargas).';
+        return;
+      }
+
+      vbGuardarBtn.disabled = true;
+      vbGuardarBtn.textContent = 'Guardando…';
+
+      const datos = {};
+      Object.entries(vbCampos).forEach(([key, input]) => {
+        datos[key] = input.value.trim();
+      });
+      datos.actualizado = serverTimestamp();
+
+      try{
+        await setDoc(CONFIG_DOC_VENTASBOT, datos, { merge: true });
+        vbSavedMsg.style.display = 'block';
+        setTimeout(() => { vbSavedMsg.style.display = 'none'; }, 4000);
+      }catch(err){
+        console.error('Error al guardar la configuración del bot de ventas:', err);
+        vbFormError.textContent = 'No se pudo guardar. Revisá la configuración de Firebase o probá de nuevo.';
+      }finally{
+        vbGuardarBtn.disabled = false;
+        vbGuardarBtn.textContent = 'Guardar configuración';
+      }
+    });
+
+    /* ============================================================
        BOT DE TICKETS (config leída/guardada en config/ticketbot,
        la usa index.js del bot)
        ============================================================ */
@@ -1837,8 +2438,6 @@
       categoriaId: tbEl('tb-categoria-id'),
       rolStaffId: tbEl('tb-rol-staff'),
       nombreCanal: tbEl('tb-nombre-canal'),
-      maxTicketsActivos: tbEl('tb-max-tickets'),
-      cierreInactividadMinutos: tbEl('tb-cierre-inactividad'),
       panelTitulo: tbEl('tb-panel-titulo'),
       panelDescripcion: tbEl('tb-panel-desc'),
       panelColorHex: tbEl('tb-panel-color-hex'),
@@ -1851,8 +2450,6 @@
       bienvenidaTitulo: tbEl('tb-bienvenida-titulo'),
       bienvenidaDescripcion: tbEl('tb-bienvenida-desc'),
       cerrarTexto: tbEl('tb-cerrar-texto'),
-      salirTexto: tbEl('tb-salir-texto'),
-      pedirCalificacion: tbEl('tb-pedir-calificacion'),
     };
     const tbColorPicker = tbEl('tb-panel-color');
 
@@ -1862,8 +2459,6 @@
       categoriaId: '',
       rolStaffId: '',
       nombreCanal: 'ticket-{usuario}',
-      maxTicketsActivos: '1',
-      cierreInactividadMinutos: '0',
       panelTitulo: 'Soporte XITERKING STORE',
       panelDescripcion: 'Tocá el botón de abajo para abrir un ticket privado con el equipo de soporte.',
       panelColorHex: '#e10600',
@@ -1877,8 +2472,6 @@
       bienvenidaTitulo: '¡Gracias por tu consulta!',
       bienvenidaDescripcion: 'Hola {usuario}, en breve un miembro del equipo te va a responder. Contanos qué necesitás.',
       cerrarTexto: 'Cerrar ticket',
-      salirTexto: 'Salir',
-      pedirCalificacion: 'no',
     };
 
     let tbConfigCargada = false;

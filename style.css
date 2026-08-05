@@ -13,56 +13,226 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 
 html,body{
-  background:var(--black);
+  background-color:var(--black);
+  background-image:
+    radial-gradient(1.4px 1.4px at 20px 30px, rgba(255,255,255,0.55), transparent 100%),
+    radial-gradient(1px 1px at 65px 120px, rgba(255,255,255,0.35), transparent 100%),
+    radial-gradient(1.6px 1.6px at 110px 45px, rgba(255,255,255,0.45), transparent 100%),
+    radial-gradient(1px 1px at 150px 200px, rgba(255,255,255,0.3), transparent 100%),
+    radial-gradient(1.4px 1.4px at 200px 80px, rgba(255,255,255,0.5), transparent 100%),
+    radial-gradient(1.6px 1.6px at 250px 260px, rgba(255,255,255,0.4), transparent 100%),
+    radial-gradient(1px 1px at 30px 220px, rgba(255,255,255,0.3), transparent 100%),
+    radial-gradient(1px 1px at 280px 150px, rgba(255,255,255,0.4), transparent 100%),
+    radial-gradient(1.5px 1.5px at 180px 10px, rgba(255,255,255,0.5), transparent 100%),
+    radial-gradient(1px 1px at 90px 280px, rgba(255,255,255,0.3), transparent 100%),
+    radial-gradient(1.3px 1.3px at 240px 40px, rgba(255,255,255,0.35), transparent 100%),
+    radial-gradient(1px 1px at 10px 160px, rgba(255,255,255,0.3), transparent 100%),
+    radial-gradient(1.2px 1.2px at 330px 190px, rgba(255,255,255,0.4), transparent 100%),
+    radial-gradient(1px 1px at 55px 260px, rgba(255,255,255,0.3), transparent 100%),
+    radial-gradient(1.5px 1.5px at 270px 100px, rgba(255,255,255,0.45), transparent 100%),
+    radial-gradient(ellipse 140% 55% at 50% 0%, rgba(70,4,4,0.4), transparent 70%),
+    radial-gradient(ellipse 160% 45% at 50% 100%, rgba(50,3,3,0.5), transparent 75%);
+  background-repeat:repeat,repeat,repeat,repeat,repeat,repeat,repeat,repeat,repeat,repeat,repeat,repeat,repeat,repeat,repeat,no-repeat,no-repeat;
+  background-size:300px 300px,300px 300px,300px 300px,300px 300px,300px 300px,300px 300px,300px 300px,300px 300px,300px 300px,300px 300px,300px 300px,300px 300px,300px 300px,300px 300px,300px 300px,100% 100%,100% 100%;
+  background-attachment:fixed;
   color:var(--white);
   font-family:'Inter',sans-serif;
   min-height:100%;
   overflow-x:hidden;
 }
 
-/* ---------- luna (disco bien definido, con halo alrededor) ---------- */
-body::after{
-  content:"";
+/* ==========================================================
+   ESCENA DE FONDO INFERNAL — inyectada por particles.js
+   (montañas con ruinas góticas, luna de sangre con halo,
+   resplandor de horizonte, humo, luciérnagas y brasas)
+   ========================================================== */
+
+.bg-scene{
   position:fixed;
-  top:70px;
+  inset:0;
+  overflow:hidden;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ---------- resplandor de horizonte (fuego lejano) ---------- */
+.horizon-glow{
+  position:absolute;
+  left:0; right:0; bottom:-140px;
+  height:300px;
+  background:radial-gradient(ellipse 70% 100% at 50% 100%, rgba(255,90,20,0.38), rgba(225,6,0,0.14) 42%, transparent 78%);
+  filter:blur(4px);
+  animation:glow-pulso 5s ease-in-out infinite;
+}
+@keyframes glow-pulso{ 0%,100%{ opacity:0.7; } 50%{ opacity:1; } }
+
+/* ---------- halo giratorio detrás de la luna ---------- */
+.moon-halo{
+  position:absolute;
+  top:clamp(30px, 6vh, 80px);
+  left:50%;
+  width:clamp(180px, 34vw, 340px);
+  height:clamp(180px, 34vw, 340px);
+  transform:translateX(-50%);
+  border-radius:50%;
+  background:conic-gradient(from 0deg,
+    rgba(225,6,0,0.20) 0deg, transparent 10deg, transparent 20deg,
+    rgba(225,6,0,0.16) 32deg, transparent 42deg, transparent 52deg,
+    rgba(225,6,0,0.18) 64deg, transparent 74deg, transparent 84deg,
+    rgba(225,6,0,0.15) 96deg, transparent 106deg, transparent 116deg,
+    rgba(225,6,0,0.19) 128deg, transparent 138deg, transparent 148deg,
+    rgba(225,6,0,0.16) 160deg, transparent 170deg, transparent 180deg,
+    rgba(225,6,0,0.18) 192deg, transparent 202deg, transparent 212deg,
+    rgba(225,6,0,0.15) 224deg, transparent 234deg, transparent 244deg,
+    rgba(225,6,0,0.19) 256deg, transparent 266deg, transparent 276deg,
+    rgba(225,6,0,0.16) 288deg, transparent 298deg, transparent 308deg,
+    rgba(225,6,0,0.18) 320deg, transparent 330deg, transparent 340deg,
+    rgba(225,6,0,0.20) 352deg, transparent 360deg);
+  -webkit-mask-image:radial-gradient(circle, #000 32%, transparent 68%);
+  mask-image:radial-gradient(circle, #000 32%, transparent 68%);
+  filter:blur(3px);
+  opacity:0.55;
+  animation:halo-girar 100s linear infinite;
+}
+@keyframes halo-girar{ from{ transform:translateX(-50%) rotate(0deg); } to{ transform:translateX(-50%) rotate(360deg); } }
+
+/* ---------- luna de sangre (con cráteres, late suavemente) ---------- */
+.moon{
+  position:absolute;
+  top:clamp(56px, 11vh, 70px);
   left:50%;
   transform:translateX(-50%);
-  width:170px;
-  height:170px;
+  width:clamp(78px, 16vw, 170px);
+  height:clamp(78px, 16vw, 170px);
   border-radius:50%;
-  background:radial-gradient(circle at 35% 32%,
-    #fff8f2 0%,
-    #ffe9dd 32%,
-    #ffb199 52%,
-    #ff5a3c 72%,
-    #b3260a 100%
-  );
-  box-shadow:
+  background:
+    radial-gradient(circle at 63% 34%, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.25) 8%, transparent 9%),
+    radial-gradient(circle at 28% 58%, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.2) 6%, transparent 7%),
+    radial-gradient(circle at 47% 76%, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.18) 5%, transparent 6%),
+    radial-gradient(circle at 72% 64%, rgba(0,0,0,0.16) 0%, rgba(0,0,0,0.16) 4%, transparent 5%),
+    radial-gradient(circle at 35% 32%, #fff8f2 0%, #ffe9dd 32%, #ffb199 52%, #ff5a3c 72%, #b3260a 100%);
+  --moon-shadow-rest:
     0 0 40px 10px rgba(225,6,0,0.5),
     0 0 90px 40px rgba(225,6,0,0.28),
     0 0 160px 80px rgba(225,6,0,0.12);
-  pointer-events:none;
-  z-index:0;
+  --moon-shadow-peak:
+    0 0 55px 16px rgba(225,6,0,0.62),
+    0 0 115px 55px rgba(225,6,0,0.36),
+    0 0 195px 95px rgba(225,6,0,0.18);
+  box-shadow:var(--moon-shadow-rest);
   animation:luna-latido 4s ease-in-out infinite;
 }
 @keyframes luna-latido{
   0%, 100%{
     transform:translateX(-50%) scale(1);
-    box-shadow:
-      0 0 40px 10px rgba(225,6,0,0.5),
-      0 0 90px 40px rgba(225,6,0,0.28),
-      0 0 160px 80px rgba(225,6,0,0.12);
+    box-shadow:var(--moon-shadow-rest);
   }
   50%{
     transform:translateX(-50%) scale(1.045);
-    box-shadow:
-      0 0 55px 16px rgba(225,6,0,0.62),
-      0 0 115px 55px rgba(225,6,0,0.36),
-      0 0 195px 95px rgba(225,6,0,0.18);
+    box-shadow:var(--moon-shadow-peak);
   }
 }
+
+/* ---------- montañas con ruinas góticas (dos capas, parallax) ---------- */
+.bg-mountains-far{
+  position:absolute;
+  left:0; right:0; bottom:50px;
+  height:38vh;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 420%22 preserveAspectRatio=%22none%22%3E %3Cpath d=%22M0,420 L0,260 L90,300 L180,220 L260,280 L350,190 L430,260 L520,170 L610,250 L700,200 L780,270 L870,210 L950,260 L1040,180 L1120,250 L1210,210 L1290,270 L1380,220 L1460,260 L1550,200 L1600,240 L1600,420 Z%22 fill=%22%231a0606%22 opacity=%220.55%22/%3E %3C/svg%3E");
+  background-repeat:repeat-x;
+  background-position:bottom left;
+  background-size:1600px 100%;
+  opacity:0.75;
+  animation:mont-drift 150s linear infinite;
+}
+.bg-mountains-near{
+  position:absolute;
+  left:0; right:0; bottom:0;
+  height:30vh;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 1600 320%22 preserveAspectRatio=%22none%22%3E %3Cpath d=%22M0,320 L0,230 L40,230 L40,190 L55,190 L55,170 L70,190 L70,230 L110,230 L110,200 L150,240 L190,180 L210,180 L210,140 L222,140 L222,120 L234,140 L234,180 L246,180 L246,230 L300,230 L300,200 L330,250 L390,170 L420,230 L470,200 L500,260 L560,210 L610,230 L610,150 L625,150 L625,110 L635,90 L645,110 L645,150 L660,150 L660,230 L700,230 L740,190 L780,240 L830,200 L880,260 L950,210 L1010,240 L1060,190 L1120,250 L1170,210 L1220,240 L1280,200 L1330,250 L1400,220 L1460,250 L1520,215 L1600,245 L1600,320 Z%22 fill=%22%230a0202%22 opacity=%220.9%22/%3E %3C/svg%3E");
+  background-repeat:repeat-x;
+  background-position:bottom left;
+  background-size:1600px 100%;
+  animation:mont-drift-rev 110s linear infinite;
+}
+@keyframes mont-drift{ from{ background-position-x:0; } to{ background-position-x:-1600px; } }
+@keyframes mont-drift-rev{ from{ background-position-x:0; } to{ background-position-x:1600px; } }
+
+/* ---------- ajustes en pantallas chicas: escena más chica y corrida hacia abajo, para no pisar el header ---------- */
+@media (max-width:700px){
+  .moon-halo{ top:110px; opacity:0.4; }
+  .moon{
+    top:140px;
+    --moon-shadow-rest:
+      0 0 20px 5px rgba(225,6,0,0.5),
+      0 0 45px 20px rgba(225,6,0,0.26),
+      0 0 80px 40px rgba(225,6,0,0.1);
+    --moon-shadow-peak:
+      0 0 28px 8px rgba(225,6,0,0.62),
+      0 0 58px 26px rgba(225,6,0,0.32),
+      0 0 100px 48px rgba(225,6,0,0.14);
+  }
+  .bg-mountains-far{ height:24vh; }
+  .bg-mountains-near{ height:18vh; }
+  .horizon-glow{ height:180px; bottom:-90px; }
+}
+
 @media (prefers-reduced-motion: reduce){
-  body::after{ animation:none; }
+  .moon-halo,.bg-mountains-far,.bg-mountains-near,.horizon-glow,.moon{ animation:none; }
+}
+
+/* ---------- humo que sube lentamente ---------- */
+.smoke-layer{
+  position:fixed;
+  inset:0;
+  overflow:hidden;
+  pointer-events:none;
+  z-index:1;
+}
+.smoke{
+  position:absolute;
+  bottom:-15vh;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(255,255,255,0.06) 0%, rgba(255,140,90,0.03) 45%, transparent 75%);
+  filter:blur(9px);
+  opacity:0;
+  animation-name:smoke-subir;
+  animation-timing-function:ease-out;
+  animation-iteration-count:infinite;
+}
+@keyframes smoke-subir{
+  0%{ transform:translate(0,0) scale(0.8); opacity:0; }
+  15%{ opacity:var(--smoke-opacity, 0.25); }
+  85%{ opacity:var(--smoke-opacity, 0.25); }
+  100%{ transform:translate(var(--smoke-drift, 40px), -115vh) scale(1.7); opacity:0; }
+}
+@media (prefers-reduced-motion: reduce){
+  .smoke{ animation:none; display:none; }
+}
+
+/* ---------- luciérnagas / chispas flotando en el aire ---------- */
+.firefly-layer{
+  position:fixed;
+  inset:0;
+  overflow:hidden;
+  pointer-events:none;
+  z-index:1;
+}
+.firefly{
+  position:absolute;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(255,200,140,0.95) 0%, rgba(255,90,30,0.55) 50%, transparent 75%);
+  box-shadow:0 0 8px rgba(255,110,40,0.6);
+  animation-name:firefly-flotar;
+  animation-timing-function:ease-in-out;
+  animation-iteration-count:infinite;
+}
+@keyframes firefly-flotar{
+  0%,100%{ transform:translate(0,0); opacity:0.15; }
+  50%{ transform:translate(var(--fly-drift-x, 20px), var(--fly-drift-y, -30px)); opacity:0.9; }
+}
+@media (prefers-reduced-motion: reduce){
+  .firefly{ animation:none; display:none; }
 }
 
 /* ---------- partículas animadas (brasas cayendo) ---------- */
@@ -424,8 +594,40 @@ main.home{
   font-size:clamp(3.2rem, 12vw, 8.5rem);
   line-height:0.95;
   letter-spacing:2px;
+
+  /* ---------- reflejo rojo animado, de izquierda a derecha ---------- */
+  /* Nota: se sacó el text-shadow rojo que tenía antes esta clase.
+     Con el relleno de texto recortado (background-clip:text) para el
+     brillo, ese resplandor se filtraba por los bordes de las letras
+     y las teñía de rosa incluso en reposo. */
   color:var(--white);
-  text-shadow: 0 0 40px rgba(225,6,0,0.35);
+  background-image: linear-gradient(
+    100deg,
+    var(--white) 0%,
+    var(--white) 40%,
+    var(--red-light) 46%,
+    var(--red) 50%,
+    var(--red-light) 54%,
+    var(--white) 60%,
+    var(--white) 100%
+  );
+  background-size: 250% 100%;
+  background-position: 0% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: brand-shine 5s infinite;
+}
+
+@keyframes brand-shine{
+  0%   { background-position: 0% 0; }     /* blanco en reposo */
+  10%  { background-position: 0% 0; }
+  55%  { background-position: 100% 0; }   /* brillo terminó de cruzar */
+  100% { background-position: 100% 0; }   /* blanco en reposo, listo para reiniciar */
+}
+
+@media (prefers-reduced-motion: reduce){
+  .brand{ animation:none; -webkit-text-fill-color:var(--white); background-image:none; }
 }
 
 .store-wrap{ position:relative; display:inline-block; margin-top:2px; }
@@ -725,6 +927,7 @@ main.home{
 }
 .tipo-tienda{ background:rgba(138,138,138,0.18); color:var(--grey); }
 .tipo-bot{ background:rgba(88,101,242,0.18); color:#5865F2; }
+.tipo-ventas{ background:rgba(46,204,113,0.18); color:var(--green); }
 
 .reg-actions{ display:flex; gap:8px; margin-top:12px; }
 
@@ -821,6 +1024,77 @@ main.home{
 }
 
 /* ---------- catalogo (home) ---------- */
+/* ---------- sobre nosotros ---------- */
+.about-wrap{
+  position:relative;
+  z-index:2;
+  max-width:1160px;
+  margin:0 auto;
+  padding:20px 20px 90px;
+}
+.about-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:56px;
+  align-items:center;
+}
+.about-left{ padding-right:10px; }
+.about-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:7px 16px;
+  border-radius:999px;
+  background:rgba(225,6,0,0.1);
+  border:1px solid rgba(225,6,0,0.35);
+  color:var(--red-light);
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:0.8px;
+  text-transform:uppercase;
+  margin-bottom:18px;
+}
+.about-title{
+  font-family:'Anton', sans-serif;
+  letter-spacing:0.5px;
+  font-size:2.1rem;
+  line-height:1.2;
+  margin-bottom:18px;
+}
+.about-title span{ color:var(--red-light); }
+.about-desc{ color:var(--grey); font-size:14.5px; line-height:1.75; max-width:460px; }
+
+.about-right{ display:flex; flex-direction:column; gap:14px; }
+.about-card{
+  display:flex;
+  align-items:flex-start;
+  gap:16px;
+  padding:20px 22px;
+  background:var(--panel);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:16px;
+  transition:border-color .2s ease, transform .2s ease;
+}
+.about-card:hover{ border-color:rgba(225,6,0,0.35); transform:translateY(-2px); }
+.about-icon{
+  flex-shrink:0;
+  width:42px; height:42px;
+  border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(225,6,0,0.12);
+  color:var(--red-light);
+}
+.about-icon svg{ width:20px; height:20px; }
+.about-card h3{ font-size:14.5px; font-weight:700; color:var(--white); margin-bottom:4px; }
+.about-card p{ font-size:12.5px; color:var(--grey); line-height:1.55; }
+
+@media (max-width:860px){
+  .about-grid{ grid-template-columns:1fr; gap:34px; }
+  .about-left{ padding-right:0; text-align:center; }
+  .about-desc{ margin:0 auto; }
+  .about-badge{ margin-left:auto; margin-right:auto; }
+}
+
 .catalogo-wrap{
   position:relative;
   z-index:2;
@@ -1567,6 +1841,7 @@ main.home{
   background:rgba(255,255,255,0.04);
   border:1px solid rgba(255,255,255,0.14);
 }
+.producto-actions .btn-wsp{ margin-bottom:0; }
 
 .producto-desc-block{
   margin-top:16px;
@@ -1871,6 +2146,28 @@ main.home{
 .prod-cart-btn:hover{ transform:translateY(-2px); border-color:var(--white); }
 .prod-cart-btn:disabled{ opacity:0.4; cursor:not-allowed; transform:none; }
 
+.prod-avisame-btn{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  background:#25D366;
+  color:#0a0a0a;
+  border:none;
+  border-radius:999px;
+  padding:11px 16px;
+  font-family:'Inter',sans-serif;
+  font-weight:700;
+  font-size:12px;
+  letter-spacing:0.5px;
+  text-transform:uppercase;
+  text-decoration:none;
+  cursor:pointer;
+  transition:transform .2s ease, opacity .2s ease;
+}
+.prod-avisame-btn:hover{ transform:translateY(-2px); opacity:0.92; }
+
 /* lista dentro del modal del carrito */
 .carrito-lista{
   display:flex;
@@ -2135,3 +2432,128 @@ main.home{
 @media (max-width:700px){
   .side-nav{ width:240px; }
 }
+/* ============================================================
+   NOTIFICACIONES — campanita flotante (mensajes desde Telegram)
+   ============================================================ */
+.notif-flotante{
+  position:fixed;
+  right:18px;
+  bottom:80px;
+  z-index:10000;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:10px;
+}
+.notif-btn{
+  position:relative;
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,0.12);
+  background:var(--panel);
+  color:var(--white);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  box-shadow:0 8px 20px rgba(0,0,0,0.45);
+  transition:transform 0.15s ease;
+}
+.notif-btn:hover{ transform:translateY(-2px); }
+.notif-btn svg{ width:20px; height:20px; }
+.notif-badge{
+  position:absolute;
+  top:-4px;
+  right:-4px;
+  min-width:18px;
+  height:18px;
+  padding:0 4px;
+  border-radius:9px;
+  background:var(--red);
+  color:var(--white);
+  font-size:10.5px;
+  font-weight:700;
+  align-items:center;
+  justify-content:center;
+  display:none;
+  border:2px solid var(--black);
+}
+.notif-panel{
+  display:none;
+  width:300px;
+  max-height:360px;
+  overflow-y:auto;
+  background:var(--panel);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:14px;
+  box-shadow:0 16px 40px rgba(0,0,0,0.55);
+}
+.notif-flotante.open .notif-panel{ display:block; }
+.notif-panel-header{
+  font-family:'Anton', sans-serif;
+  font-size:13px;
+  letter-spacing:0.6px;
+  text-transform:uppercase;
+  color:var(--red-light);
+  padding:14px 16px 10px;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+}
+.notif-panel-lista{ padding:6px 0; }
+.notif-vacio{
+  padding:18px 16px;
+  font-size:12.5px;
+  color:var(--grey);
+}
+.notif-item{
+  padding:10px 16px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.notif-item:last-child{ border-bottom:none; }
+.notif-item-nueva{ background:rgba(225,6,0,0.06); }
+.notif-item-texto{
+  font-size:12.5px;
+  color:var(--white);
+  line-height:1.5;
+  white-space:pre-wrap;
+}
+.notif-item-fecha{
+  font-size:10.5px;
+  color:var(--grey);
+  margin-top:4px;
+}
+@media (max-width:700px){
+  .notif-flotante{ right:12px; bottom:76px; }
+  .notif-panel{ width:min(88vw, 320px); }
+}
+
+/* ============================================================
+   CUPONES DE DESCUENTO
+   ============================================================ */
+.cupon-box{
+  display:flex;
+  gap:8px;
+  margin:14px 0 4px;
+}
+.cupon-box input{
+  flex:1;
+  background:var(--panel-2);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:10px;
+  padding:10px 12px;
+  color:var(--white);
+  font-family:'Inter', sans-serif;
+  font-size:13px;
+}
+.cupon-box .btn{
+  padding:10px 18px;
+  font-size:13px;
+  white-space:nowrap;
+}
+.cupon-msg{
+  font-size:12px;
+  margin-bottom:10px;
+  min-height:16px;
+}
+.cupon-msg.ok{ color:var(--green); }
+.cupon-msg.error{ color:var(--red-light); }

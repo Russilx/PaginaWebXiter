@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script type="module" src="mantenimiento-check.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Recargar saldo — XITERKING STORE</title>
@@ -222,6 +223,7 @@
           montoSaldo,
           referencia: referencia || null,
           estado: 'pendiente',
+          avisado: false,
           fecha: serverTimestamp()
         });
 
@@ -294,5 +296,6 @@
     });
   </script>
   <script src="particles.js" defer></script>
+  <script src="cursor-fx.js" defer></script>
 </body>
 </html>

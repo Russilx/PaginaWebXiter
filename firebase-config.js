@@ -23,6 +23,7 @@ export const firebaseConfig = {
 // Clave para entrar al panel de administración (cambiala).
 export const ADMIN_PASSWORD = "Xiterkingelmejordetodos";
 
+
 // ============================================================
 // EMAILJS — envío automático de email al aprobar un registro
 // ------------------------------------------------------------

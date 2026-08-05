@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script type="module" src="mantenimiento-check.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Iniciar sesión — XITERKING STORE</title>
@@ -80,9 +81,51 @@
           <button class="btn btn-primary" style="width:100%;" id="login-btn">Iniciar sesión</button>
 
           <div class="alt-link">¿Todavía no tenés cuenta? <a href="registro.html?origen=tienda">Registrate</a></div>
+          <div class="alt-link"><a href="#" id="forgot-link">¿Olvidaste tu contraseña?</a></div>
           <div class="admin-link">
             <a href="admin.html">Panel de administración</a>
           </div>
+        </div>
+
+        <div id="forgot-step1-wrap" style="display:none;">
+          <h2>Recuperar <span>contraseña</span></h2>
+          <p class="sub">Ingresá el email de tu cuenta y te mandamos un código para restablecer la contraseña.</p>
+
+          <div class="field">
+            <label for="forgot-email">Email</label>
+            <input id="forgot-email" type="email" placeholder="tuemail@ejemplo.com">
+          </div>
+
+          <div class="form-error" id="forgot-step1-error"></div>
+
+          <button class="btn btn-primary" style="width:100%;" id="forgot-send-btn">Enviar código</button>
+          <div class="alt-link"><a href="#" id="forgot-cancel-1">Volver a iniciar sesión</a></div>
+        </div>
+
+        <div id="forgot-step2-wrap" style="display:none;">
+          <h2>Ingresá el <span>código</span></h2>
+          <p class="sub">Te mandamos un código de 6 dígitos a <strong id="forgot-email-mostrado"></strong>. Escribilo junto con tu nueva contraseña.</p>
+
+          <div class="field">
+            <label for="forgot-code">Código</label>
+            <input id="forgot-code" type="text" inputmode="numeric" maxlength="6" placeholder="123456">
+          </div>
+          <div class="field">
+            <label for="forgot-new-pass">Nueva contraseña</label>
+            <input id="forgot-new-pass" type="password" placeholder="Mínimo 6 caracteres">
+          </div>
+
+          <div class="form-error" id="forgot-step2-error"></div>
+
+          <button class="btn btn-primary" style="width:100%;" id="forgot-reset-btn">Restablecer contraseña</button>
+          <div class="alt-link"><a href="#" id="forgot-reenviar">Reenviar código</a> · <a href="#" id="forgot-cancel-2">Cancelar</a></div>
+        </div>
+
+        <div id="forgot-success-wrap" class="success-box" style="display:none;">
+          <div class="icon">✓</div>
+          <h3>¡Contraseña actualizada!</h3>
+          <p>Ya podés iniciar sesión con tu nueva contraseña.</p>
+          <button class="btn btn-secondary" style="width:100%;" id="forgot-success-btn">Volver a iniciar sesión</button>
         </div>
 
         <div id="login-success" class="success-box" style="display:none;">
@@ -97,9 +140,9 @@
   </div>
 
   <script type="module">
-    import { firebaseConfig } from './firebase-config.js';
+    import { firebaseConfig, EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, EMAILJS_PUBLIC_KEY } from './firebase-config.js';
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs }
+    import { getFirestore, collection, query, where, getDocs, doc, getDoc, updateDoc }
       from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
     const app = initializeApp(firebaseConfig);
@@ -150,6 +193,11 @@
           resetBtn();
           return;
         }
+        if(registro.tipo === 'ventas'){
+          errorEl.textContent = 'Esa cuenta es del Bot de Ventas. Iniciá sesión en ventasbot-login.html.';
+          resetBtn();
+          return;
+        }
 
         if(registro.estado === 'pendiente'){
           errorEl.textContent = 'Tu cuenta todavía está pendiente de aprobación.';
@@ -190,6 +238,180 @@
       btn.disabled = false;
       btn.textContent = 'Iniciar sesión';
     }
+
+    /* ---------- olvidé mi contraseña ---------- */
+    const loginFormWrap = document.getElementById('login-form-wrap');
+    const forgotStep1 = document.getElementById('forgot-step1-wrap');
+    const forgotStep2 = document.getElementById('forgot-step2-wrap');
+    const forgotSuccess = document.getElementById('forgot-success-wrap');
+
+    let forgotRegId = null;
+    let forgotEmail = '';
+
+    function mostrarSolo(el){
+      [loginFormWrap, forgotStep1, forgotStep2, forgotSuccess].forEach(w => {
+        w.style.display = (w === el) ? 'block' : 'none';
+      });
+    }
+
+    function generarCodigo(){
+      return String(Math.floor(100000 + Math.random() * 900000));
+    }
+
+    document.getElementById('forgot-link').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('forgot-email').value = document.getElementById('login-email').value.trim();
+      document.getElementById('forgot-step1-error').textContent = '';
+      mostrarSolo(forgotStep1);
+    });
+    document.getElementById('forgot-cancel-1').addEventListener('click', (e) => {
+      e.preventDefault();
+      mostrarSolo(loginFormWrap);
+    });
+    document.getElementById('forgot-cancel-2').addEventListener('click', (e) => {
+      e.preventDefault();
+      mostrarSolo(loginFormWrap);
+    });
+    document.getElementById('forgot-success-btn').addEventListener('click', () => mostrarSolo(loginFormWrap));
+    document.getElementById('forgot-reenviar').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('forgot-email').value = forgotEmail;
+      mostrarSolo(forgotStep1);
+    });
+
+    async function enviarCodigoReset(){
+      const errorEl1 = document.getElementById('forgot-step1-error');
+      errorEl1.textContent = '';
+      const email = document.getElementById('forgot-email').value.trim();
+
+      if(!email){
+        errorEl1.textContent = 'Ingresá tu email.';
+        return;
+      }
+
+      const sendBtn = document.getElementById('forgot-send-btn');
+      sendBtn.disabled = true;
+      sendBtn.textContent = 'Enviando…';
+
+      try{
+        const q = query(collection(db, "registros"), where("email", "==", email));
+        const snapshot = await getDocs(q);
+
+        if(snapshot.empty){
+          errorEl1.textContent = 'No existe una cuenta con ese email.';
+          return;
+        }
+
+        const regDoc = snapshot.docs[0];
+        const registro = regDoc.data();
+        const codigo = generarCodigo();
+        const expira = Date.now() + 15 * 60 * 1000; // el código vale por 15 minutos
+
+        await updateDoc(doc(db, "registros", regDoc.id), {
+          resetCode: codigo,
+          resetCodeExpira: expira
+        });
+
+        const resp = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            service_id: EMAILJS_SERVICE_ID,
+            template_id: EMAILJS_TEMPLATE_ID,
+            user_id: EMAILJS_PUBLIC_KEY,
+            template_params: {
+              to_name: registro.nombre,
+              to_email: registro.email,
+              asunto: 'Código para restablecer tu contraseña — XITERKING STORE',
+              mensaje: `Hola ${registro.nombre},\n\nTu código para restablecer la contraseña es: ${codigo}\n\nVale por 15 minutos. Si no pediste este cambio, ignorá este mensaje.`
+            }
+          })
+        });
+
+        if(!resp.ok){
+          const detalle = await resp.text();
+          console.error('EmailJS respondió con error:', detalle);
+          errorEl1.textContent = 'No se pudo enviar el email. Probá de nuevo en unos minutos.';
+          return;
+        }
+
+        forgotRegId = regDoc.id;
+        forgotEmail = registro.email;
+        document.getElementById('forgot-email-mostrado').textContent = registro.email;
+        document.getElementById('forgot-code').value = '';
+        document.getElementById('forgot-new-pass').value = '';
+        document.getElementById('forgot-step2-error').textContent = '';
+        mostrarSolo(forgotStep2);
+      }catch(err){
+        console.error('Error al pedir el código de recuperación:', err);
+        errorEl1.textContent = 'Hubo un problema. Probá de nuevo.';
+      }finally{
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Enviar código';
+      }
+    }
+    document.getElementById('forgot-send-btn').addEventListener('click', enviarCodigoReset);
+
+    document.getElementById('forgot-reset-btn').addEventListener('click', async () => {
+      const errorEl2 = document.getElementById('forgot-step2-error');
+      errorEl2.textContent = '';
+
+      const codigoIngresado = document.getElementById('forgot-code').value.trim();
+      const nuevaPass = document.getElementById('forgot-new-pass').value;
+
+      if(!codigoIngresado || !nuevaPass){
+        errorEl2.textContent = 'Completá el código y la nueva contraseña.';
+        return;
+      }
+      if(nuevaPass.length < 6){
+        errorEl2.textContent = 'La contraseña debe tener al menos 6 caracteres.';
+        return;
+      }
+      if(!forgotRegId){
+        errorEl2.textContent = 'Volvé a pedir el código.';
+        return;
+      }
+
+      const resetPassBtn = document.getElementById('forgot-reset-btn');
+      resetPassBtn.disabled = true;
+      resetPassBtn.textContent = 'Restableciendo…';
+
+      try{
+        const regRef = doc(db, "registros", forgotRegId);
+        const snap = await getDoc(regRef);
+
+        if(!snap.exists()){
+          errorEl2.textContent = 'No se encontró la cuenta. Volvé a pedir el código.';
+          return;
+        }
+        const registro = snap.data();
+
+        if(!registro.resetCode || registro.resetCode !== codigoIngresado){
+          errorEl2.textContent = 'El código no es correcto.';
+          return;
+        }
+        if(!registro.resetCodeExpira || Date.now() > registro.resetCodeExpira){
+          errorEl2.textContent = 'El código venció. Pedí uno nuevo.';
+          return;
+        }
+
+        const nuevoHash = await hashPassword(nuevaPass);
+        await updateDoc(regRef, {
+          passHash: nuevoHash,
+          resetCode: null,
+          resetCodeExpira: null
+        });
+
+        forgotRegId = null;
+        mostrarSolo(forgotSuccess);
+      }catch(err){
+        console.error('Error al restablecer la contraseña:', err);
+        errorEl2.textContent = 'Hubo un problema. Probá de nuevo.';
+      }finally{
+        resetPassBtn.disabled = false;
+        resetPassBtn.textContent = 'Restablecer contraseña';
+      }
+    });
   </script>
   <!-- FOOTER DE CONTACTO -->
   <footer class="site-footer">
@@ -250,5 +472,6 @@
     });
   </script>
   <script src="particles.js" defer></script>
+  <script src="cursor-fx.js" defer></script>
 </body>
 </html>

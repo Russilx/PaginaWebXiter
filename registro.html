@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script type="module" src="mantenimiento-check.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Crear cuenta — XITERKING STORE</title>
@@ -64,9 +65,10 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    /* ---------- origen del registro: "tienda" (login.html) o "bot" (ticketbot.html) ---------- */
+    /* ---------- origen del registro: "tienda" (login.html), "bot" (ticketbot.html) o "ventas" (ventasbot-login.html) ---------- */
     const params = new URLSearchParams(window.location.search);
-    const origen = params.get('origen') === 'bot' ? 'bot' : 'tienda';
+    const origenParam = params.get('origen');
+    const origen = origenParam === 'bot' ? 'bot' : origenParam === 'ventas' ? 'ventas' : 'tienda';
 
     if(origen === 'bot'){
       document.getElementById('reg-titulo').innerHTML = 'Crear cuenta <span>del Bot de Tickets</span>';
@@ -76,6 +78,16 @@
       document.getElementById('reg-success-texto').innerHTML = 'Tu cuenta quedó <strong>pendiente de aprobación</strong>. En cuanto el administrador la autorice, vas a poder ingresar en la página del bot y configurar tu servidor de Discord.';
       document.getElementById('reg-success-btn').textContent = 'Ir a iniciar sesión del bot';
       document.getElementById('reg-success-btn').href = 'ticketbot.html';
+    }
+
+    if(origen === 'ventas'){
+      document.getElementById('reg-titulo').innerHTML = 'Crear cuenta <span>del Bot de Ventas</span>';
+      document.getElementById('reg-subtitulo').textContent = 'Esta cuenta es solo para configurar tu propio bot de ventas en ventasbot.html, no incluye los beneficios de la tienda ni del bot de tickets.';
+      document.getElementById('reg-login-link').textContent = 'Iniciá sesión';
+      document.getElementById('reg-login-link').href = 'ventasbot-login.html';
+      document.getElementById('reg-success-texto').innerHTML = 'Tu cuenta quedó <strong>pendiente de aprobación</strong>. En cuanto el administrador la autorice, vas a poder ingresar en la página del bot y configurar tu servidor de Discord.';
+      document.getElementById('reg-success-btn').textContent = 'Ir a iniciar sesión del bot';
+      document.getElementById('reg-success-btn').href = 'ventasbot-login.html';
     }
 
     // hash simple del lado del cliente para no guardar la contraseña en texto plano.
@@ -122,7 +134,7 @@
           email,
           whatsapp,
           passHash,
-          tipo: origen, // "tienda" (login.html) o "bot" (ticketbot.html)
+          tipo: origen, // "tienda" (login.html), "bot" (ticketbot.html) o "ventas" (ventasbot-login.html)
           estado: 'pendiente',
           saldo: 0,
           fecha: serverTimestamp()
@@ -197,5 +209,6 @@
     });
   </script>
   <script src="particles.js" defer></script>
+  <script src="cursor-fx.js" defer></script>
 </body>
 </html>

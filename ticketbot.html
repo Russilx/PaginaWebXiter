@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<script type="module" src="mantenimiento-check.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bot de Tickets — XITERKING STORE</title>
@@ -136,6 +137,11 @@
           resetBtn();
           return;
         }
+        if(registro.tipo === 'ventas'){
+          errorEl.textContent = 'Esa cuenta es del Bot de Ventas. Iniciá sesión en ventasbot-login.html.';
+          resetBtn();
+          return;
+        }
 
         if(registro.estado === 'pendiente'){
           errorEl.textContent = 'Tu cuenta todavía está pendiente de aprobación.';
@@ -234,5 +240,6 @@
     });
   </script>
   <script src="particles.js" defer></script>
+  <script src="cursor-fx.js" defer></script>
 </body>
 </html>
