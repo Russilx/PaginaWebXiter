@@ -186,7 +186,7 @@ export default {
       }
 
       const ordenBody = {
-        service_id: serviceId,
+        service_id: serviceId.toString(),
         reference_id: referenceId,
         cantidad: 1,
         user_id: uid.trim(),
