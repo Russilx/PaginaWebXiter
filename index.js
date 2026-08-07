@@ -186,10 +186,11 @@ export default {
       }
 
       const ordenBody = {
-        service_id: serviceId,
-        reference_id: referenceId,
-        cantidad: 1,
-        user_id: uid.trim(),
+  service_code: serviceId,
+  reference_id: referenceId,
+  cantidad: 1,
+  user_id: uid.trim(),
+};
         // Nota: Free Fire solo pide el UID del jugador (a diferencia de
         // juegos como Mobile Legends que también piden server_id). Si
         // FlashTopup devuelve VALIDACION_FALLIDA pidiendo un campo
