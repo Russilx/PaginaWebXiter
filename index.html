@@ -12,6 +12,17 @@
 </head>
 <body>
 
+  <!-- CARTEL / ANUNCIO PERSONALIZABLE (arriba de todo, solo en esta página) -->
+  <div class="anuncio-banner" id="anuncio-banner" style="display:none;">
+    <span class="anuncio-badge">
+      <span class="anuncio-badge-dot" aria-hidden="true"></span>
+      <span class="anuncio-badge-texto">Atención</span>
+    </span>
+    <div class="anuncio-viewport" id="anuncio-viewport">
+      <div class="anuncio-track" id="anuncio-track"></div>
+    </div>
+  </div>
+
   <!-- NAVEGACIÓN LATERAL IZQUIERDA (se abre con el botón de hamburguesa) -->
   <div class="side-nav-backdrop" id="side-nav-backdrop"></div>
   <nav class="side-nav" id="side-nav" aria-label="Navegación lateral">
@@ -1537,6 +1548,7 @@
   </script>
   <script type="module" src="notificaciones.js"></script>
   <script src="particles.js" defer></script>
+  <script type="module" src="anuncio.js"></script>
   <script src="cursor-fx.js" defer></script>
 </body>
 </html>

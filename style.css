@@ -69,11 +69,10 @@ html,body{
 /* ---------- halo giratorio detrás de la luna ---------- */
 .moon-halo{
   position:absolute;
-  top:clamp(30px, 6vh, 80px);
-  left:50%;
-  width:clamp(180px, 34vw, 340px);
-  height:clamp(180px, 34vw, 340px);
-  transform:translateX(-50%);
+  top:clamp(50px, 8vh, 100px);
+  right:2%;
+  width:clamp(140px, 24vw, 260px);
+  height:clamp(140px, 24vw, 260px);
   border-radius:50%;
   background:conic-gradient(from 0deg,
     rgba(225,6,0,0.20) 0deg, transparent 10deg, transparent 20deg,
@@ -91,19 +90,18 @@ html,body{
   -webkit-mask-image:radial-gradient(circle, #000 32%, transparent 68%);
   mask-image:radial-gradient(circle, #000 32%, transparent 68%);
   filter:blur(3px);
-  opacity:0.55;
+  opacity:0.4;
   animation:halo-girar 100s linear infinite;
 }
-@keyframes halo-girar{ from{ transform:translateX(-50%) rotate(0deg); } to{ transform:translateX(-50%) rotate(360deg); } }
+@keyframes halo-girar{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
 
 /* ---------- luna de sangre (con cráteres, late suavemente) ---------- */
 .moon{
   position:absolute;
-  top:clamp(56px, 11vh, 70px);
-  left:50%;
-  transform:translateX(-50%);
-  width:clamp(78px, 16vw, 170px);
-  height:clamp(78px, 16vw, 170px);
+  top:clamp(65px, 11vh, 118px);
+  right:6%;
+  width:clamp(48px, 9vw, 100px);
+  height:clamp(48px, 9vw, 100px);
   border-radius:50%;
   background:
     radial-gradient(circle at 63% 34%, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.25) 8%, transparent 9%),
@@ -112,23 +110,23 @@ html,body{
     radial-gradient(circle at 72% 64%, rgba(0,0,0,0.16) 0%, rgba(0,0,0,0.16) 4%, transparent 5%),
     radial-gradient(circle at 35% 32%, #fff8f2 0%, #ffe9dd 32%, #ffb199 52%, #ff5a3c 72%, #b3260a 100%);
   --moon-shadow-rest:
-    0 0 40px 10px rgba(225,6,0,0.5),
-    0 0 90px 40px rgba(225,6,0,0.28),
-    0 0 160px 80px rgba(225,6,0,0.12);
+    0 0 26px 6px rgba(225,6,0,0.4),
+    0 0 60px 26px rgba(225,6,0,0.2),
+    0 0 110px 55px rgba(225,6,0,0.08);
   --moon-shadow-peak:
-    0 0 55px 16px rgba(225,6,0,0.62),
-    0 0 115px 55px rgba(225,6,0,0.36),
-    0 0 195px 95px rgba(225,6,0,0.18);
+    0 0 36px 10px rgba(225,6,0,0.5),
+    0 0 78px 36px rgba(225,6,0,0.26),
+    0 0 135px 65px rgba(225,6,0,0.12);
   box-shadow:var(--moon-shadow-rest);
   animation:luna-latido 4s ease-in-out infinite;
 }
 @keyframes luna-latido{
   0%, 100%{
-    transform:translateX(-50%) scale(1);
+    transform:scale(1);
     box-shadow:var(--moon-shadow-rest);
   }
   50%{
-    transform:translateX(-50%) scale(1.045);
+    transform:scale(1.045);
     box-shadow:var(--moon-shadow-peak);
   }
 }
@@ -160,17 +158,18 @@ html,body{
 
 /* ---------- ajustes en pantallas chicas: escena más chica y corrida hacia abajo, para no pisar el header ---------- */
 @media (max-width:700px){
-  .moon-halo{ top:110px; opacity:0.4; }
+  .moon-halo{ top:130px; right:-20px; opacity:0.3; }
   .moon{
-    top:140px;
+    top:150px;
+    right:-8px;
     --moon-shadow-rest:
-      0 0 20px 5px rgba(225,6,0,0.5),
-      0 0 45px 20px rgba(225,6,0,0.26),
-      0 0 80px 40px rgba(225,6,0,0.1);
+      0 0 16px 4px rgba(225,6,0,0.4),
+      0 0 34px 14px rgba(225,6,0,0.2),
+      0 0 60px 28px rgba(225,6,0,0.08);
     --moon-shadow-peak:
-      0 0 28px 8px rgba(225,6,0,0.62),
-      0 0 58px 26px rgba(225,6,0,0.32),
-      0 0 100px 48px rgba(225,6,0,0.14);
+      0 0 22px 6px rgba(225,6,0,0.5),
+      0 0 44px 18px rgba(225,6,0,0.26),
+      0 0 75px 34px rgba(225,6,0,0.1);
   }
   .bg-mountains-far{ height:24vh; }
   .bg-mountains-near{ height:18vh; }
@@ -264,6 +263,121 @@ html,body{
 }
 @media (prefers-reduced-motion: reduce){
   .ember{ animation:none; display:none; }
+}
+
+/* ---------- anuncio / cartel personalizable (solo index.html) ---------- */
+.anuncio-banner{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  overflow:hidden;
+  position:relative;
+  z-index:70;
+  padding:10px 18px;
+  /* se apaga hacia negro en los bordes (mismo --black que el fondo del
+     sitio) y se enciende en rojo/ámbar al centro, como si el brillo
+     emergiera de la propia oscuridad en vez de un bloque pegado encima */
+  background:linear-gradient(90deg,
+    var(--black) 0%,
+    rgba(120,4,2,0.92) 10%,
+    var(--red) 40%,
+    #ff5a1f 50%,
+    var(--red) 60%,
+    rgba(120,4,2,0.92) 90%,
+    var(--black) 100%);
+}
+/* resplandor suave hacia abajo, en vez de un borde duro, para que se
+   funda con lo que sigue en vez de cortar en seco */
+.anuncio-banner::before{
+  content:'';
+  position:absolute;
+  left:0; right:0; bottom:-22px;
+  height:34px;
+  z-index:0;
+  background:radial-gradient(ellipse 60% 100% at 50% 0%, rgba(255,90,20,0.28), rgba(225,6,0,0.1) 55%, transparent 80%);
+  filter:blur(3px);
+  pointer-events:none;
+}
+/* brillo que recorre el cartel de punta a punta, de fondo */
+.anuncio-banner::after{
+  content:'';
+  position:absolute;
+  inset:0;
+  z-index:1;
+  background:linear-gradient(100deg, transparent 42%, rgba(255,255,255,0.14) 50%, transparent 58%);
+  background-size:250% 100%;
+  background-repeat:no-repeat;
+  animation: anuncio-brillo 3.4s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes anuncio-brillo{
+  0%{ background-position:160% 0; }
+  100%{ background-position:-60% 0; }
+}
+
+.anuncio-badge{
+  position:relative;
+  z-index:2;
+  flex:none;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  background:rgba(10,10,10,0.65);
+  border:1px solid rgba(255,140,40,0.5);
+  color:var(--yellow);
+  font-family:'Anton', sans-serif;
+  font-weight:400;
+  font-size:11px;
+  letter-spacing:1.2px;
+  text-transform:uppercase;
+  padding:4px 11px 4px 8px;
+  border-radius:999px;
+  box-shadow:0 0 10px rgba(255,140,40,0.3);
+}
+.anuncio-badge-dot{
+  width:6px;
+  height:6px;
+  flex:none;
+  border-radius:50%;
+  background:var(--red-light);
+  box-shadow:0 0 8px 1px rgba(255,59,48,0.85);
+  animation: anuncio-dot-pulso 1.4s ease-in-out infinite;
+}
+@keyframes anuncio-dot-pulso{
+  0%,100%{ transform:scale(1); opacity:1; }
+  50%{ transform:scale(1.6); opacity:0.55; }
+}
+
+.anuncio-viewport{
+  position:relative;
+  z-index:2;
+  flex:1 1 auto;
+  min-width:0;
+  overflow:hidden;
+  height:20px;
+}
+.anuncio-track{
+  position:absolute;
+  top:0;
+  left:0;
+  white-space:nowrap;
+  font-family:'Anton', sans-serif;
+  font-weight:400;
+  font-size:14.5px;
+  letter-spacing:0.6px;
+  color:var(--white);
+  text-shadow:0 1px 3px rgba(0,0,0,0.45);
+  will-change:transform;
+}
+@media (prefers-reduced-motion: reduce){
+  .anuncio-banner::after{ animation:none; }
+  .anuncio-badge-dot{ animation:none; }
+  .anuncio-viewport{ height:auto; overflow:visible; }
+  .anuncio-track{ position:static; text-align:center; width:100%; transform:none !important; animation:none !important; }
+}
+@media (max-width:560px){
+  .anuncio-badge-texto{ display:none; } /* en mobile queda solo el ícono, para no comerse espacio */
 }
 
 /* ---------- topbar ---------- */

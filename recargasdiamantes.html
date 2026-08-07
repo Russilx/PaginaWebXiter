@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<script type="module" src="mantenimiento-check.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recargar diamantes — XITERKING STORE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=10">
+<style>
+  /* ---------- grilla de paquetes de diamantes ---------- */
+  .rf-paquetes-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(140px, 1fr));
+    gap:12px;
+    margin:22px 0 6px;
+  }
+  .rf-paquete{
+    background:rgba(255,255,255,0.03);
+    border:1.5px solid rgba(255,255,255,0.08);
+    border-radius:14px;
+    padding:16px 12px;
+    text-align:center;
+    cursor:pointer;
+    transition:border-color .18s ease, background .18s ease, transform .18s ease;
+  }
+  .rf-paquete:hover{ transform:translateY(-2px); border-color:rgba(255,140,40,0.4); }
+  .rf-paquete.activo{
+    border-color:var(--red-light);
+    background:rgba(225,6,0,0.1);
+    box-shadow:0 0 0 1px rgba(255,59,48,0.35), 0 0 18px rgba(225,6,0,0.25);
+  }
+  .rf-paquete-icono{ font-size:22px; margin-bottom:6px; }
+  .rf-paquete-cant{ font-family:'Anton', sans-serif; font-size:16px; letter-spacing:0.5px; color:var(--white); }
+  .rf-paquete-precio{ font-size:13px; color:var(--yellow); font-weight:600; margin-top:4px; }
+
+  .rf-uid-note{ font-size:11.5px; color:var(--grey); line-height:1.5; margin-top:6px; }
+
+  .rf-recargar-btn[disabled]{ opacity:0.5; cursor:not-allowed; }
+
+  /* ---------- historial ---------- */
+  .rf-historial{
+    margin-top:34px;
+    padding-top:24px;
+    border-top:1px solid rgba(255,255,255,0.08);
+  }
+  .rf-historial h3{
+    font-family:'Anton', sans-serif;
+    font-size:14px;
+    letter-spacing:1px;
+    color:var(--red-light);
+    text-transform:uppercase;
+    margin-bottom:14px;
+  }
+  .rf-hist-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    background:rgba(255,255,255,0.03);
+    border:1px solid rgba(255,255,255,0.07);
+    border-radius:12px;
+    padding:12px 14px;
+    margin-bottom:8px;
+    font-size:13px;
+  }
+  .rf-hist-info{ line-height:1.5; }
+  .rf-hist-uid{ color:var(--grey); font-size:11.5px; }
+  .rf-hist-pill{
+    font-size:10.5px;
+    font-weight:700;
+    letter-spacing:0.4px;
+    text-transform:uppercase;
+    padding:4px 10px;
+    border-radius:999px;
+    flex:none;
+  }
+  .rf-hist-pill-completado{ background:rgba(52,199,89,0.12); color:var(--green); border:1px solid rgba(52,199,89,0.35); }
+  .rf-hist-pill-procesando{ background:rgba(245,197,66,0.12); color:var(--yellow); border:1px solid rgba(245,197,66,0.35); }
+  .rf-hist-pill-fallido{ background:rgba(225,6,0,0.12); color:var(--red-light); border:1px solid rgba(225,6,0,0.35); }
+
+  /* ---------- sin cuenta ---------- */
+  .rf-no-logueado{ text-align:center; padding:20px 0 6px; }
+  .rf-no-logueado p{ color:var(--grey); font-size:13.5px; margin-bottom:18px; }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <a class="back-btn" href="index.html">← Volver</a>
+    <span class="brandmark">XITERKING</span>
+  </div>
+
+  <div class="page-wrap">
+    <div class="card" style="max-width:640px;">
+      <h2>Recargar <span>diamantes</span></h2>
+      <p class="sub">Elegí el paquete, ingresá tu UID de Free Fire y confirmá — se paga con tu saldo y la recarga la hacemos automática.</p>
+
+      <!-- SIN CUENTA -->
+      <div class="rf-no-logueado" id="rf-no-logueado" style="display:none;">
+        <p>Necesitás una cuenta con saldo para recargar diamantes.</p>
+        <a class="btn btn-primary" style="width:100%; display:block; text-align:center;" href="login.html">Iniciar sesión</a>
+      </div>
+
+      <!-- FORMULARIO -->
+      <div id="rf-form-wrap" style="display:none;">
+        <div class="field">
+          <label for="rf-uid">UID de Free Fire</label>
+          <input id="rf-uid" type="text" inputmode="numeric" placeholder="Ej: 123456789">
+          <span class="rf-uid-note">Lo encontrás tocando tu avatar dentro del juego, abajo a la izquierda de la pantalla. Revisalo bien: una vez confirmada, la recarga no se puede deshacer.</span>
+        </div>
+
+        <div class="rf-paquetes-grid" id="rf-paquetes-grid"></div>
+
+        <div class="form-error" id="rf-error"></div>
+
+        <button class="btn btn-primary rf-recargar-btn" style="width:100%; margin-top:14px;" id="rf-recargar-btn" disabled>Elegí un paquete</button>
+      </div>
+
+      <!-- HISTORIAL -->
+      <div class="rf-historial" id="rf-historial-wrap" style="display:none;">
+        <h3>Tus recargas</h3>
+        <div id="rf-historial-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARTEL / MODAL -->
+  <div class="modal-overlay" id="modal-overlay" style="display:none;">
+    <div class="modal-box" id="modal-box">
+      <div class="modal-icon" id="modal-icon">!</div>
+      <div class="modal-msg" id="modal-msg"></div>
+      <button class="btn btn-primary" style="width:100%;" id="modal-close-btn">Cerrar</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { firebaseConfig, FLASHTOPUP_WORKER_URL, FLASHTOPUP_SITE_KEY } from './firebase-config.js';
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, updateDoc, runTransaction, collection, query, where, orderBy, limit, getDocs, serverTimestamp }
+      from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // ============================================================
+    // PAQUETES DE DIAMANTES — acá se edita el precio de venta (en
+    // USDT, tu saldo) de cada paquete. El "serviceId" es el ID que
+    // ves en tu panel de FlashTopup (pestaña "Productos y precios").
+    // Dejé un margen de ejemplo sobre "tu precio" de FlashTopup —
+    // ajustalo a lo que quieras cobrar vos.
+    // ============================================================
+    const PAQUETES = [
+      { serviceId: 542, diamantes: 110,  precio: 0.77 },
+      { serviceId: 543, diamantes: 341,  precio: 2.30 },
+      { serviceId: 544, diamantes: 572,  precio: 3.90 },
+      { serviceId: 545, diamantes: 1166, precio: 7.25 },
+      { serviceId: 546, diamantes: 2398, precio: 14.45 },
+      { serviceId: 547, diamantes: 6160, precio: 36.80 },
+    ];
+
+    function formatearPrecio(n){
+      return '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    /* ---------- cartel / modal ---------- */
+    function mostrarCartel(mensaje, tipo){
+      const overlay = document.getElementById('modal-overlay');
+      const icon = document.getElementById('modal-icon');
+      const msg = document.getElementById('modal-msg');
+      msg.textContent = mensaje;
+      icon.textContent = tipo === 'ok' ? '✓' : '✕';
+      icon.className = 'modal-icon ' + (tipo === 'ok' ? 'modal-icon-ok' : 'modal-icon-error');
+      overlay.style.display = 'flex';
+    }
+    document.getElementById('modal-close-btn').addEventListener('click', () => {
+      document.getElementById('modal-overlay').style.display = 'none';
+    });
+    document.getElementById('modal-overlay').addEventListener('click', (e) => {
+      if(e.target.id === 'modal-overlay') document.getElementById('modal-overlay').style.display = 'none';
+    });
+
+    /* ---------- sesión ---------- */
+    function obtenerUsuario(){
+      const raw = sessionStorage.getItem('xiterking_user');
+      if(!raw) return null;
+      try{ return JSON.parse(raw); }catch(e){ return null; }
+    }
+    function guardarUsuario(usuario){
+      sessionStorage.setItem('xiterking_user', JSON.stringify(usuario));
+    }
+
+    let usuario = obtenerUsuario();
+    if(usuario){
+      document.getElementById('rf-form-wrap').style.display = 'block';
+      document.getElementById('rf-historial-wrap').style.display = 'block';
+    }else{
+      document.getElementById('rf-no-logueado').style.display = 'block';
+    }
+
+    /* ---------- pintar paquetes ---------- */
+    let paqueteSeleccionado = null;
+
+    function pintarPaquetes(){
+      const grid = document.getElementById('rf-paquetes-grid');
+      grid.innerHTML = PAQUETES.map(p => `
+        <div class="rf-paquete" data-service-id="${p.serviceId}">
+          <div class="rf-paquete-icono">💎</div>
+          <div class="rf-paquete-cant">${p.diamantes}</div>
+          <div class="rf-paquete-precio">${formatearPrecio(p.precio)}</div>
+        </div>
+      `).join('');
+
+      grid.querySelectorAll('.rf-paquete').forEach(el => {
+        el.addEventListener('click', () => {
+          grid.querySelectorAll('.rf-paquete').forEach(x => x.classList.remove('activo'));
+          el.classList.add('activo');
+          paqueteSeleccionado = PAQUETES.find(p => p.serviceId === Number(el.dataset.serviceId));
+          actualizarBoton();
+        });
+      });
+    }
+    if(usuario) pintarPaquetes();
+
+    function actualizarBoton(){
+      const btn = document.getElementById('rf-recargar-btn');
+      if(!paqueteSeleccionado){
+        btn.disabled = true;
+        btn.textContent = 'Elegí un paquete';
+        return;
+      }
+      btn.disabled = false;
+      btn.textContent = `Recargar ${paqueteSeleccionado.diamantes} 💎 por ${formatearPrecio(paqueteSeleccionado.precio)}`;
+    }
+
+    function mostrarError(texto){
+      document.getElementById('rf-error').textContent = texto;
+    }
+
+    /* ---------- reintegrar saldo si algo falla ---------- */
+    async function reintegrarSaldo(usuarioActual, monto, pedidoRef, motivo){
+      const userRef = doc(db, "registros", usuarioActual.id);
+      const nuevoSaldo = await runTransaction(db, async (t) => {
+        const snap = await t.get(userRef);
+        const saldoActual = snap.exists() ? (snap.data().saldo || 0) : 0;
+        const saldoFinal = saldoActual + monto;
+        t.update(userRef, { saldo: saldoFinal });
+        t.update(pedidoRef, { estado: 'fallido', motivo: motivo || '', saldoReintegrado: true });
+        return saldoFinal;
+      });
+      usuarioActual.saldo = nuevoSaldo;
+      guardarUsuario(usuarioActual);
+      return nuevoSaldo;
+    }
+
+    function mapearEstado(estadoFlashTopup){
+      const e = (estadoFlashTopup || '').toLowerCase();
+      if(e.includes('complet')) return 'completado';
+      if(e.includes('fail') || e.includes('fall')) return 'fallido';
+      return 'procesando';
+    }
+
+    /* ---------- consulta periódica mientras la orden sigue "procesando" ---------- */
+    function iniciarPolling(pedidoRef, orderId, paquete, usuarioActual){
+      let intentos = 0;
+      const MAX_INTENTOS = 15; // ~15 x 4s = 1 minuto probando
+
+      const intervalo = setInterval(async () => {
+        intentos++;
+        try{
+          const res = await fetch(FLASHTOPUP_WORKER_URL + '/consultar-orden', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Site-Key': FLASHTOPUP_SITE_KEY },
+            body: JSON.stringify({ orderId })
+          });
+          const data = await res.json();
+
+          if(data.ok){
+            const estado = mapearEstado(data.estado);
+            await updateDoc(pedidoRef, { estado });
+
+            if(estado === 'completado'){
+              clearInterval(intervalo);
+              cargarHistorial();
+              mostrarCartel(`¡Tu recarga de ${paquete.diamantes} diamantes se completó!`, 'ok');
+            }else if(estado === 'fallido'){
+              clearInterval(intervalo);
+              await reintegrarSaldo(usuarioActual, paquete.precio, pedidoRef, 'RECARGA_FALLIDA_EN_FLASHTOPUP');
+              cargarHistorial();
+              mostrarCartel('Tu recarga falló del lado del proveedor. Te reintegramos el saldo.', 'error');
+            }
+          }
+        }catch(err){
+          console.error('Error al consultar estado de la orden:', err);
+        }
+
+        if(intentos >= MAX_INTENTOS) clearInterval(intervalo);
+      }, 4000);
+    }
+
+    /* ---------- confirmar recarga ---------- */
+    async function confirmarRecarga(){
+      if(!paqueteSeleccionado) return;
+
+      const uidInput = document.getElementById('rf-uid');
+      const uid = uidInput.value.trim();
+      mostrarError('');
+
+      if(!uid){
+        mostrarError('Ingresá tu UID de Free Fire.');
+        return;
+      }
+      if(!/^[0-9]{4,15}$/.test(uid)){
+        mostrarError('El UID de Free Fire son solo números (revisalo dentro del juego).');
+        return;
+      }
+
+      usuario = obtenerUsuario();
+      if(!usuario){
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const btn = document.getElementById('rf-recargar-btn');
+      btn.disabled = true;
+      const textoOriginal = btn.textContent;
+      btn.textContent = 'Procesando…';
+
+      const referenceId = crypto.randomUUID();
+      const userRef = doc(db, "registros", usuario.id);
+      const pedidoRef = doc(db, "recargasDiamantes", referenceId);
+
+      // 1) se descuenta el saldo y se deja registrado el pedido en
+      // Firestore ANTES de llamarlo al worker, igual que se hace con
+      // las compras de productos.
+      let saldoNuevo;
+      try{
+        const resultado = await runTransaction(db, async (t) => {
+          const snap = await t.get(userRef);
+          if(!snap.exists()) throw new Error('USUARIO_NO_ENCONTRADO');
+          const saldoActual = snap.data().saldo || 0;
+          if(saldoActual < paqueteSeleccionado.precio) throw new Error('SIN_SALDO');
+
+          t.update(userRef, { saldo: saldoActual - paqueteSeleccionado.precio });
+          t.set(pedidoRef, {
+            usuarioId: usuario.id,
+            usuarioNombre: usuario.nombre,
+            usuarioEmail: usuario.email,
+            uid,
+            serviceId: paqueteSeleccionado.serviceId,
+            diamantes: paqueteSeleccionado.diamantes,
+            monto: paqueteSeleccionado.precio,
+            estado: 'creando',
+            fecha: serverTimestamp()
+          });
+          return { saldoNuevo: saldoActual - paqueteSeleccionado.precio };
+        });
+        saldoNuevo = resultado.saldoNuevo;
+      }catch(err){
+        btn.disabled = false;
+        btn.textContent = textoOriginal;
+        if(err.message === 'SIN_SALDO'){
+          mostrarCartel('no tenes saldo suficiente JAJAJAJA', 'error');
+        }else{
+          console.error('Error al iniciar la recarga:', err);
+          mostrarError('No se pudo iniciar la recarga. Probá de nuevo.');
+        }
+        return;
+      }
+
+      usuario.saldo = saldoNuevo;
+      guardarUsuario(usuario);
+      cargarHistorial();
+
+      // 2) recién ahora se le pide al worker que haga la recarga real
+      try{
+        const res = await fetch(FLASHTOPUP_WORKER_URL + '/crear-orden', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Site-Key': FLASHTOPUP_SITE_KEY },
+          body: JSON.stringify({ serviceId: paqueteSeleccionado.serviceId, uid, referenceId })
+        });
+        const data = await res.json();
+
+        if(!data.ok){
+          await reintegrarSaldo(usuario, paqueteSeleccionado.precio, pedidoRef, data.mensaje || data.motivo);
+          cargarHistorial();
+          mostrarCartel('No se pudo procesar la recarga (' + (data.mensaje || data.motivo || 'error desconocido') + '). Te reintegramos el saldo.', 'error');
+          return;
+        }
+
+        const estado = mapearEstado(data.estado);
+        await updateDoc(pedidoRef, { orderId: data.orderId, estado });
+        cargarHistorial();
+
+        if(estado === 'completado'){
+          mostrarCartel(`¡Recarga de ${paqueteSeleccionado.diamantes} diamantes enviada! Tu saldo ahora es ${formatearPrecio(usuario.saldo)}.`, 'ok');
+        }else if(estado === 'fallido'){
+          await reintegrarSaldo(usuario, paqueteSeleccionado.precio, pedidoRef, 'RECARGA_FALLIDA_EN_FLASHTOPUP');
+          cargarHistorial();
+          mostrarCartel('Tu recarga falló del lado del proveedor. Te reintegramos el saldo.', 'error');
+        }else{
+          mostrarCartel(`Recarga en camino. Tu saldo ahora es ${formatearPrecio(usuario.saldo)}. Te avisamos acá abajo, en "Tus recargas", cuando se complete.`, 'ok');
+          iniciarPolling(pedidoRef, data.orderId, paqueteSeleccionado, usuario);
+        }
+      }catch(err){
+        console.error('Error de red al procesar la recarga:', err);
+        await reintegrarSaldo(usuario, paqueteSeleccionado.precio, pedidoRef, 'ERROR_DE_RED');
+        cargarHistorial();
+        mostrarCartel('No se pudo conectar para procesar la recarga. Te reintegramos el saldo.', 'error');
+      }finally{
+        btn.disabled = false;
+        actualizarBoton();
+        uidInput.value = '';
+      }
+    }
+    document.getElementById('rf-recargar-btn').addEventListener('click', confirmarRecarga);
+
+    /* ---------- historial de recargas del usuario ---------- */
+    const ESTADO_LABEL = { completado: 'Completado', procesando: 'Procesando', fallido: 'Fallido', creando: 'Procesando' };
+
+    function formatearFecha(fecha){
+      if(!fecha) return '';
+      try{
+        const d = fecha.toDate ? fecha.toDate() : new Date(fecha);
+        return d.toLocaleDateString('es-AR') + ' ' + d.toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit' });
+      }catch(e){ return ''; }
+    }
+
+    async function cargarHistorial(){
+      if(!usuario) return;
+      const lista = document.getElementById('rf-historial-list');
+      try{
+        const q = query(
+          collection(db, 'recargasDiamantes'),
+          where('usuarioId', '==', usuario.id),
+          orderBy('fecha', 'desc'),
+          limit(10)
+        );
+        const snap = await getDocs(q);
+        if(snap.empty){
+          lista.innerHTML = '<div class="empty-state">Todavía no hiciste ninguna recarga.</div>';
+          return;
+        }
+        lista.innerHTML = snap.docs.map(d => {
+          const p = d.data();
+          const estado = ESTADO_LABEL[p.estado] ? p.estado : 'procesando';
+          const claseEstado = estado === 'creando' ? 'procesando' : estado;
+          return `
+            <div class="rf-hist-item">
+              <div class="rf-hist-info">
+                <div>${p.diamantes} 💎 · ${formatearPrecio(p.monto)}</div>
+                <div class="rf-hist-uid">UID ${p.uid} · ${formatearFecha(p.fecha)}</div>
+              </div>
+              <span class="rf-hist-pill rf-hist-pill-${claseEstado}">${ESTADO_LABEL[p.estado] || 'Procesando'}</span>
+            </div>
+          `;
+        }).join('');
+      }catch(err){
+        console.error('Error al cargar historial de recargas:', err);
+        lista.innerHTML = '<div class="empty-state">No se pudo cargar tu historial.</div>';
+      }
+    }
+    if(usuario) cargarHistorial();
+  </script>
+
+  <!-- FOOTER DE CONTACTO -->
+  <footer class="site-footer">
+    <div class="site-footer-inner">
+      <span class="site-footer-title">Seguinos y contactanos</span>
+      <div class="site-footer-links">
+        <a class="footer-link" id="footer-wsp-link" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.8-1.9-.9-.3-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.3-.1-1.1-.4-2.1-1.3-.8-.7-1.3-1.6-1.5-1.8-.2-.3 0-.4.1-.6.1-.1.3-.3.4-.5.1-.1.2-.3.2-.4.1-.2 0-.3 0-.5-.1-.1-.6-1.5-.8-2-.2-.5-.4-.4-.6-.5h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.3 0 1.3 1 2.6 1.1 2.8.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.3.2-.6.2-1.1.2-1.3-.1-.1-.3-.2-.6-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 5L2 22l5.2-1.4C8.6 21.5 10.3 22 12 22c5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3.1.8.8-3-.2-.3C4 14.7 3.6 13.4 3.6 12c0-4.6 3.8-8.4 8.4-8.4s8.4 3.8 8.4 8.4-3.8 8.4-8.4 8.4z"/></svg>
+          WhatsApp
+        </a>
+        <a class="footer-link" id="footer-discord-link" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.3 4.4A19.8 19.8 0 0 0 15.6 3c-.2.4-.5.9-.7 1.3a18.3 18.3 0 0 0-5.8 0c-.2-.4-.4-.9-.7-1.3-1.6.3-3.2.8-4.7 1.4C1 8.7.3 13 .6 17.1a20 20 0 0 0 6 3c.5-.6.9-1.3 1.3-2-.7-.3-1.4-.6-2-1 .2-.1.3-.3.5-.4a14.3 14.3 0 0 0 12.2 0c.2.1.3.3.5.4-.6.4-1.3.7-2 1 .4.7.8 1.4 1.3 2a20 20 0 0 0 6-3c.4-4.7-.8-9-3.1-12.7zM8.5 14.6c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2zm7 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2z"/></svg>
+          Discord
+        </a>
+        <a class="footer-link" id="footer-ig-personal-link" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></svg>
+          Instagram
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- SOPORTE FLOTANTE (visible en toda la página) -->
+  <div class="soporte-flotante" id="soporte-flotante">
+    <div class="soporte-menu" id="soporte-menu">
+      <a class="soporte-opcion soporte-wsp" id="soporte-wsp-link" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.8-1.9-.9-.3-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.3-.1-1.1-.4-2.1-1.3-.8-.7-1.3-1.6-1.5-1.8-.2-.3 0-.4.1-.6.1-.1.3-.3.4-.5.1-.1.2-.3.2-.4.1-.2 0-.3 0-.5-.1-.1-.6-1.5-.8-2-.2-.5-.4-.4-.6-.5h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.3 0 1.3 1 2.6 1.1 2.8.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.3.2-.6.2-1.1.2-1.3-.1-.1-.3-.2-.6-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 5L2 22l5.2-1.4C8.6 21.5 10.3 22 12 22c5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3.1.8.8-3-.2-.3C4 14.7 3.6 13.4 3.6 12c0-4.6 3.8-8.4 8.4-8.4s8.4 3.8 8.4 8.4-3.8 8.4-8.4 8.4z"/></svg>
+        WhatsApp
+      </a>
+      <a class="soporte-opcion soporte-discord" id="soporte-discord-link" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.3 4.4A19.8 19.8 0 0 0 15.6 3c-.2.4-.5.9-.7 1.3a18.3 18.3 0 0 0-5.8 0c-.2-.4-.4-.9-.7-1.3-1.6.3-3.2.8-4.7 1.4C1 8.7.3 13 .6 17.1a20 20 0 0 0 6 3c.5-.6.9-1.3 1.3-2-.7-.3-1.4-.6-2-1 .2-.1.3-.3.5-.4a14.3 14.3 0 0 0 12.2 0c.2.1.3.3.5.4-.6.4-1.3.7-2 1 .4.7.8 1.4 1.3 2a20 20 0 0 0 6-3c.4-4.7-.8-9-3.1-12.7zM8.5 14.6c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2zm7 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2z"/></svg>
+        Discord
+      </a>
+    </div>
+    <button class="soporte-btn" id="soporte-btn" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.5 0 10-4 10-9s-4.5-9-10-9-10 4-10 9c0 2 1 4 2.5 5.5L4 22l4.5-1.5C9.6 21 10.8 22 12 22z"/></svg>
+      <span class="soporte-btn-label">Soporte</span>
+    </button>
+  </div>
+
+  <script type="module">
+    import { WHATSAPP_RECARGAS, DISCORD_INVITE, INSTAGRAM_PERSONAL } from './firebase-config.js';
+
+    const soporteWspTexto = encodeURIComponent('Hola! Necesito ayuda con una recarga de diamantes en XITERKING STORE.');
+    document.getElementById('soporte-wsp-link').href = `https://wa.me/${WHATSAPP_RECARGAS}?text=${soporteWspTexto}`;
+    document.getElementById('soporte-discord-link').href = DISCORD_INVITE;
+
+    document.getElementById('footer-wsp-link').href = `https://wa.me/${WHATSAPP_RECARGAS}?text=${soporteWspTexto}`;
+    document.getElementById('footer-discord-link').href = DISCORD_INVITE;
+    document.getElementById('footer-ig-personal-link').href = INSTAGRAM_PERSONAL;
+
+    const soporteFlotante = document.getElementById('soporte-flotante');
+    document.getElementById('soporte-btn').addEventListener('click', () => {
+      soporteFlotante.classList.toggle('open');
+    });
+    document.addEventListener('click', (e) => {
+      if(!soporteFlotante.contains(e.target)) soporteFlotante.classList.remove('open');
+    });
+  </script>
+  <script src="particles.js" defer></script>
+  <script src="cursor-fx.js" defer></script>
+</body>
+</html>

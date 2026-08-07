@@ -115,3 +115,21 @@ export const INSTAGRAM_PERSONAL = "https://www.instagram.com/tebi_.04/";
 // Conseguida en https://api.imgbb.com/ (cuenta gratuita).
 // ============================================================
 export const IMGBB_API_KEY = "3ab45368d9e1341556fc9313a5c8c807";
+
+// ============================================================
+// FLASHTOPUP — recargas automáticas de diamantes de Free Fire
+// (recargas-diamantes.html). La clave secreta de FlashTopup
+// NUNCA va acá ni en ningún archivo del sitio — vive únicamente
+// en el Worker de Cloudflare (ver worker/index.js). Estas dos
+// constantes son solo para que tu sitio pueda hablarle a TU
+// worker, no a FlashTopup directamente.
+// ------------------------------------------------------------
+// 1. Desplegá el worker (instrucciones completas en el
+//    encabezado de worker/index.js) y copiá la URL que te da
+//    Cloudflare acá abajo en FLASHTOPUP_WORKER_URL.
+// 2. La SITE_KEY es una clave que vos mismo inventás (no tiene
+//    que ver con FlashTopup) y tiene que ser IDÉNTICA a la que
+//    cargaste como variable de entorno "SITE_KEY" en el worker.
+// ============================================================
+export const FLASHTOPUP_WORKER_URL = "https://flashtopup-proxy.xiterking.workers.dev";
+export const FLASHTOPUP_SITE_KEY = "xk_9f3a7d2e1c8b4f6a0d5e2c9b7a1f4e8d";
