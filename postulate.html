@@ -351,15 +351,16 @@
         const disponible = configs[tipo].activo;
         const badge = disponible ? '' : '<span class="post-tab-badge">No disponible</span>';
         const activeClass = tipo === primeraActiva ? ' active' : '';
-        const disabledAttr = disponible ? '' : ' disabled';
-        return `<button class="post-tab${activeClass}" data-tipo="${tipo}"${disabledAttr}>${escHtml(configs[tipo].titulo)}${badge}</button>`;
+        return `<button class="post-tab${activeClass}" data-tipo="${tipo}">${escHtml(configs[tipo].titulo)}${badge}</button>`;
       }).join('');
 
       TIPOS.forEach(tipo => renderPanel(tipo, configs[tipo]));
       activarPanel(primeraActiva);
 
+      // todas las pestañas se pueden tocar, incluidas las apagadas — al
+      // entrar a una apagada, el panel le muestra el cartel de "no
+      // disponible" en vez del formulario (ver renderPanel).
       tabsEl.querySelectorAll('.post-tab').forEach(tab => {
-        if(tab.disabled) return; // los apagados se ven, pero no se pueden abrir
         tab.addEventListener('click', () => activarPanel(tab.dataset.tipo));
       });
     }
