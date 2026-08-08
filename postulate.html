@@ -55,35 +55,29 @@
   .post-panel{ display:none; }
   .post-panel.active{ display:block; }
 
-  /* ---------- overlay "no disponible" cuando el admin apaga un formulario ---------- */
-  .post-panel-inner{ position:relative; }
-  .post-panel.post-disabled .post-panel-inner{
-    pointer-events:none;
-    filter:blur(2px) brightness(0.5);
-    user-select:none;
+  .post-tab[disabled]{
+    color:rgba(255,255,255,0.3);
+    cursor:not-allowed;
   }
-  .post-disabled-overlay{
-    position:absolute;
-    inset:0;
-    z-index:5;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    overflow:hidden;
-    border-radius:14px;
-  }
-  .post-disabled-overlay-text{
-    writing-mode:vertical-rl;
-    transform:rotate(180deg);
-    font-family:'Anton', sans-serif;
-    font-size:clamp(2.2rem, 9vw, 4.2rem);
-    letter-spacing:6px;
-    line-height:1;
-    color:var(--red-light);
+  .post-tab[disabled]:hover{ color:rgba(255,255,255,0.3); }
+  .post-tab-badge{
+    font-size:9.5px;
+    font-weight:700;
     text-transform:uppercase;
-    white-space:nowrap;
-    text-shadow:0 0 24px rgba(225,6,0,0.55), 0 0 4px rgba(0,0,0,0.8);
-    -webkit-text-stroke:1px rgba(0,0,0,0.6);
+    letter-spacing:0.4px;
+    color:var(--grey);
+    background:rgba(255,255,255,0.06);
+    border-radius:5px;
+    padding:2px 6px;
+    margin-left:6px;
+    vertical-align:1px;
+  }
+  .post-panel-no-disponible{
+    color:var(--grey);
+    font-size:13.5px;
+    text-align:center;
+    padding:34px 10px;
+    line-height:1.6;
   }
 </style>
 </head>
@@ -234,32 +228,27 @@
     function renderPanel(tipo, config){
       const contenedor = document.getElementById('post-panels');
       const panel = document.createElement('div');
-      panel.className = 'post-panel' + (config.activo ? '' : ' post-disabled');
+      panel.className = 'post-panel';
       panel.id = 'panel-' + tipo;
+
+      if(!config.activo){
+        panel.innerHTML = `<p class="post-panel-no-disponible">Este formulario no está disponible por el momento. Probá con otro rol o volvé más adelante.</p>`;
+        contenedor.appendChild(panel);
+        return;
+      }
 
       const camposHTML = config.preguntas.map(p => campoHTML(tipo, p)).join('');
       const descHTML = config.descripcion ? `<p class="post-panel-desc">${escHtml(config.descripcion)}</p>` : '';
 
-      const overlayHTML = config.activo ? '' : `
-        <div class="post-disabled-overlay" aria-hidden="true">
-          <span class="post-disabled-overlay-text">NO DISPONIBLE AHORA MISMO</span>
-        </div>
-      `;
-
       panel.innerHTML = `
-        <div class="post-panel-inner">
-          ${descHTML}
-          ${camposHTML}
-          <div class="form-error" id="err-${tipo}"></div>
-          <button class="btn btn-primary" style="width:100%;" id="btn-${tipo}" ${config.activo ? '' : 'disabled tabindex="-1"'}>Enviar postulación</button>
-        </div>
-        ${overlayHTML}
+        ${descHTML}
+        ${camposHTML}
+        <div class="form-error" id="err-${tipo}"></div>
+        <button class="btn btn-primary" style="width:100%;" id="btn-${tipo}">Enviar postulación</button>
       `;
       contenedor.appendChild(panel);
 
-      if(config.activo){
-        document.getElementById(`btn-${tipo}`).addEventListener('click', () => enviarPostulacion(tipo, config));
-      }
+      document.getElementById(`btn-${tipo}`).addEventListener('click', () => enviarPostulacion(tipo, config));
     }
 
     // Aviso por Telegram cuando llega una postulación nueva — así te
@@ -341,22 +330,36 @@
       await Promise.all(TIPOS.map(async (tipo) => { configs[tipo] = await cargarConfigTipo(tipo); }));
 
       document.getElementById('post-loading').style.display = 'none';
+
+      const activos = TIPOS.filter(t => configs[t].activo);
+
+      // Solo se muestra el cartel de "no hay nada abierto" si de verdad
+      // los 4 tipos están apagados. Si hay al menos uno activo, siempre
+      // se ve la barra de pestañas completa (los apagados se ven pero
+      // deshabilitados, nunca desaparece todo por uno solo).
+      if(!activos.length){
+        document.getElementById('post-empty').style.display = 'block';
+        return;
+      }
+
       document.getElementById('post-body').style.display = 'block';
 
-      // se muestran SIEMPRE las 4 pestañas; las que estén apagadas
-      // igual se ven, pero con el formulario tachado y bloqueado
-      // (ver post-disabled-overlay más abajo).
-      const primeraActiva = TIPOS.find(t => configs[t].activo) || TIPOS[0];
+      const primeraActiva = activos[0];
 
       const tabsEl = document.getElementById('post-tabs');
-      tabsEl.innerHTML = TIPOS.map((tipo) =>
-        `<button class="post-tab${tipo === primeraActiva ? ' active' : ''}" data-tipo="${tipo}">${escHtml(configs[tipo].titulo)}</button>`
-      ).join('');
+      tabsEl.innerHTML = TIPOS.map((tipo) => {
+        const disponible = configs[tipo].activo;
+        const badge = disponible ? '' : '<span class="post-tab-badge">No disponible</span>';
+        const activeClass = tipo === primeraActiva ? ' active' : '';
+        const disabledAttr = disponible ? '' : ' disabled';
+        return `<button class="post-tab${activeClass}" data-tipo="${tipo}"${disabledAttr}>${escHtml(configs[tipo].titulo)}${badge}</button>`;
+      }).join('');
 
       TIPOS.forEach(tipo => renderPanel(tipo, configs[tipo]));
       activarPanel(primeraActiva);
 
       tabsEl.querySelectorAll('.post-tab').forEach(tab => {
+        if(tab.disabled) return; // los apagados se ven, pero no se pueden abrir
         tab.addEventListener('click', () => activarPanel(tab.dataset.tipo));
       });
     }
